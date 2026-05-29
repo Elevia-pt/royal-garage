@@ -7,24 +7,31 @@ permalink: /
 
 <main id="top">
   {% set waCarMsg = "Olá " + site.name + ", tenho interesse no " + featured.marca + " " + featured.modelo + ". Ainda está disponível?" %}
-  <section class="hero hero-feature" style="--hero-photo: url('/assets/cars/{{ featured.photos[0] }}');">
-    <div class="wrap hero-feature-in">
+  <section class="hero-featured">
+    <div class="wrap">
       <span class="kick">{{ site.tagline }}</span>
-      <h1 class="hero-welcome">
-        <span class="welcome">Bem-vindo ao</span>
-        <span class="brand-name disp">{{ site.name }}</span>
-      </h1>
-      <div class="hero-divider"></div>
-      <div class="hero-feature-card">
-        <span class="destaque-tag">Em destaque</span>
-        <h2 class="disp">{{ featured.marca }} {{ featured.modelo }}</h2>
-        <p class="hero-feature-specs">{{ featured.ano }} · {{ featured.km | km }} · {{ featured.comb }}{% if featured.cv %} · {{ featured.cv }} cv{% endif %}</p>
-        <div class="hero-feature-price">{{ featured.preco | price }}</div>
-        <div class="cta">
-          <a class="btn btn-gold" href="/viatura/{{ featured.slug }}/" style="color:#000">Ver detalhes <span class="arr">→</span></a>
-          <a class="btn btn-out" href="{{ waCarMsg | waLink(site.whatsapp) }}" target="_blank" rel="noopener">WhatsApp</a>
+      <article class="featured-card">
+        <div class="featured-card-media">
+          <img src="/assets/cars/{{ featured.photos[0] }}" alt="{{ featured.marca }} {{ featured.modelo }}">
+          <span class="destaque-badge">Em destaque</span>
         </div>
-      </div>
+        <div class="featured-card-info">
+          <h1 class="disp brand">{{ featured.marca }}</h1>
+          <p class="model">{{ featured.modelo }}</p>
+          <ul class="featured-specs">
+            <li>{{ featured.ano }}</li>
+            <li>{{ featured.km | km }}</li>
+            <li>{{ featured.comb }}</li>
+            {% if featured.cv %}<li>{{ featured.cv }} cv</li>{% endif %}
+          </ul>
+          <div class="featured-divider"></div>
+          <div class="featured-price">{{ featured.preco | price }}</div>
+          <div class="featured-cta">
+            <a class="btn btn-gold" href="/viatura/{{ featured.slug }}/" style="color:#000">Ver detalhes <span class="arr">→</span></a>
+            <a class="btn btn-out" href="{{ waCarMsg | waLink(site.whatsapp) }}" target="_blank" rel="noopener">WhatsApp</a>
+          </div>
+        </div>
+      </article>
     </div>
   </section>
 

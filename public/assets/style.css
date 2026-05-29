@@ -49,19 +49,26 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .hero p{color:#d7d5cf;font-size:clamp(1rem,2vw,1.2rem);max-width:520px;margin-bottom:34px}
 .hero .cta{display:flex;gap:14px;flex-wrap:wrap}
 
-/* Hero "Bem-vindo" com viatura em destaque (editorial) */
-.hero-feature{min-height:100vh;padding:130px 0 80px;background-image:linear-gradient(95deg,rgba(10,10,12,.96) 28%,rgba(10,10,12,.6) 62%,rgba(10,10,12,.2) 100%),var(--hero-photo);background-size:cover;background-position:center right}
-.hero-feature-in{max-width:780px;position:relative;z-index:2;display:flex;flex-direction:column}
-.hero-welcome{margin:16px 0 22px;display:flex;flex-direction:column;gap:8px;line-height:1}
-.hero-welcome .welcome{color:var(--gold);font-family:var(--sans);font-size:clamp(.95rem,2vw,1.4rem);font-weight:300;letter-spacing:.14em;text-transform:uppercase}
-.hero-welcome .brand-name{font-size:clamp(3rem,9.5vw,7rem);letter-spacing:.04em;line-height:.95;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero-divider{width:90px;height:2px;background:var(--grad);margin:6px 0 34px;border-radius:2px}
-.hero-feature-card{display:flex;flex-direction:column;gap:6px;max-width:560px}
-.hero-feature-card .destaque-tag{position:static;align-self:flex-start;background:var(--grad);color:#1a1304;font-family:var(--disp);font-size:.78rem;letter-spacing:.2em;padding:7px 14px;border-radius:5px;margin-bottom:10px;text-transform:uppercase}
-.hero-feature-card h2{font-size:clamp(1.4rem,3vw,2.1rem);font-weight:400;line-height:1.1}
-.hero-feature-specs{color:#cfcdc4;font-size:clamp(.92rem,1.6vw,1.05rem);letter-spacing:.02em;margin:6px 0 4px}
-.hero-feature-price{font-family:var(--disp);font-size:clamp(2.6rem,6vw,4rem);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;margin:8px 0 4px}
-.hero-feature-card .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
+/* Hero v3 — Card com foto + info ao lado (anúncio premium) */
+.hero-featured{padding:130px 0 70px;background:radial-gradient(ellipse at 50% 0%,rgba(240,192,64,.09),transparent 55%),var(--bg);min-height:80vh;display:flex;align-items:center}
+.hero-featured .wrap{display:flex;flex-direction:column;gap:18px}
+.hero-featured .kick{align-self:flex-start}
+.featured-card{display:grid;grid-template-columns:1.15fr 1fr;background:var(--panel);border:1px solid rgba(240,192,64,.35);border-radius:18px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 0 1px rgba(240,192,64,.08);transition:.4s}
+.featured-card:hover{box-shadow:0 30px 90px rgba(0,0,0,.7),0 0 36px rgba(240,192,64,.22);border-color:rgba(240,192,64,.5)}
+.featured-card-media{position:relative;overflow:hidden;background:#000;min-height:380px}
+.featured-card-media img{width:100%;height:100%;object-fit:cover;transition:.6s;position:absolute;inset:0}
+.featured-card:hover .featured-card-media img{transform:scale(1.04)}
+.destaque-badge{position:absolute;top:18px;left:18px;background:var(--grad);color:#1a1304;font-family:var(--disp);font-size:.78rem;letter-spacing:.2em;padding:8px 14px;border-radius:5px;text-transform:uppercase;z-index:2}
+.featured-card-info{padding:38px 40px;display:flex;flex-direction:column;gap:8px;justify-content:center}
+.featured-card-info .brand{font-size:clamp(2.4rem,5vw,3.8rem);line-height:1;text-transform:uppercase;font-weight:400}
+.featured-card-info .model{color:var(--muted);font-size:clamp(1rem,1.8vw,1.18rem);font-weight:500;margin-bottom:8px}
+.featured-specs{list-style:none;display:flex;flex-wrap:wrap;gap:0;margin:4px 0 6px}
+.featured-specs li{position:relative;color:var(--txt);font-size:.94rem;font-weight:600;padding:0 16px}
+.featured-specs li:first-child{padding-left:0}
+.featured-specs li:not(:last-child)::after{content:"·";position:absolute;right:-3px;color:var(--gold);opacity:.7}
+.featured-divider{width:60px;height:2px;background:var(--grad);border-radius:2px;margin:14px 0 4px}
+.featured-price{font-family:var(--disp);font-size:clamp(2.6rem,5vw,3.6rem);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;margin:6px 0 6px}
+.featured-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
 
 /* Stats */
 .stats{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:54px 0}
@@ -234,7 +241,18 @@ footer ul a:hover{color:var(--gold)}
   .car-detail-summary{position:static;top:auto}
 }
 @media(max-width:900px){
-  .hero-feature{background-image:linear-gradient(180deg,rgba(10,10,12,.65) 0%,rgba(10,10,12,.45) 45%,rgba(10,10,12,.92) 100%),var(--hero-photo);background-position:center;min-height:92vh}
+  .hero-featured{min-height:auto;padding:110px 0 50px}
+  .featured-card{grid-template-columns:1fr}
+  .featured-card-media{aspect-ratio:16/10;min-height:0}
+  .featured-card-info{padding:28px 26px 32px}
+}
+@media(max-width:520px){
+  .featured-card-info{padding:22px 20px 26px}
+  .featured-card-info .brand{font-size:2rem}
+  .featured-specs li{font-size:.86rem;padding:0 12px}
+  .featured-price{font-size:2.4rem}
+  .featured-cta{width:100%}
+  .featured-cta .btn{flex:1;justify-content:center;font-size:.76rem;padding:13px 14px}
 }
 @media(max-width:520px){
   .stats-grid{grid-template-columns:1fr;gap:24px}
