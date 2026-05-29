@@ -10,7 +10,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/admin/admin.css">
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
 
@@ -22,13 +21,14 @@
 </section>
 
 <section id="view-login" class="view hidden">
-  <div class="login-card">
+  <form class="login-card" id="loginForm" autocomplete="off">
     <img src="/assets/logo.jpg" alt="Royal Garage" class="login-logo">
     <h1>Painel Royal Garage</h1>
-    <p>Acede com o teu email e senha para gerir o stock de viaturas.</p>
-    <button class="btn btn-primary btn-big" id="btnLogin">Entrar</button>
-    <p class="hint">Se ainda não tens conta, pede ao administrador para te convidar.</p>
-  </div>
+    <p>Introduz a password de administrador.</p>
+    <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+    <button type="submit" class="btn btn-primary btn-big" id="btnLogin">Entrar</button>
+    <div id="loginError" class="err-box hidden"></div>
+  </form>
 </section>
 
 <section id="view-dashboard" class="view hidden">

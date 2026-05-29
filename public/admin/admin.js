@@ -2,11 +2,11 @@
   'use strict';
 
   const API = '/api';
+  const TOKEN_KEY = 'rg_token';
   const $ = (s) => document.querySelector(s);
 
   const state = {
     view: 'loading',
-    user: null,
     cars: [],
     editingId: null,
     photos: [],
@@ -32,63 +32,88 @@
     if (!el) { alert(msg); return; }
     el.textContent = msg;
     el.classList.remove('hidden');
-    setTimeout(() => el.classList.add('hidden'), 9000);
+    if (elId !== 'loginError') setTimeout(() => el.classList.add('hidden'), 9000);
+  }
+  function hideError(elId) {
+    const el = document.getElementById(elId);
+    if (el) el.classList.add('hidden');
   }
 
   function fmtPrice(n) { return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €' : '—'; }
   function fmtKm(n) { return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' km' : '—'; }
-  // Resolve o URL da foto: URL completo (Cloudinary etc.) usa-se tal e qual;
-  // filename simples ("car-1.jpg") é uma foto local em /assets/cars/.
-  function photoUrl(p) {
-    if (!p) return '';
-    if (/^https?:\/\//i.test(p) || p.startsWith('/')) return p;
-    return '/assets/cars/' + p;
-  }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
       { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
     ));
   }
   function attrEsc(s) { return String(s == null ? '' : s).replace(/"/g, '&quot;'); }
-
-  // ===== Netlify Identity =====
-  function waitForIdentity() {
-    return new Promise((resolve) => {
-      if (window.netlifyIdentity) return resolve();
-      const t = setInterval(() => {
-        if (window.netlifyIdentity) { clearInterval(t); resolve(); }
-      }, 50);
-    });
+  function photoUrl(p) {
+    if (!p) return '';
+    if (/^https?:\/\//i.test(p) || p.startsWith('/')) return p;
+    return '/assets/cars/' + p;
   }
 
-  waitForIdentity().then(() => {
-    netlifyIdentity.on('init', user => {
-      if (user) onLogin(user);
-      else setView('login');
-    });
-    netlifyIdentity.on('login', user => {
-      netlifyIdentity.close();
-      onLogin(user);
-    });
-    netlifyIdentity.on('logout', () => {
-      state.user = null;
-      setView('login');
-    });
-    netlifyIdentity.init();
-  });
+  // ===== Token =====
+  function getToken() { return localStorage.getItem(TOKEN_KEY); }
+  function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+  function clearToken() { localStorage.removeItem(TOKEN_KEY); }
 
-  async function onLogin(user) {
-    state.user = user;
-    const emailEl = $('#userEmail');
-    if (emailEl) emailEl.textContent = user.email || '';
+  // ===== API =====
+  async function api(path, opts) {
+    opts = opts || {};
+    const token = getToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${API}/${path}`, {
+      method: opts.method || 'GET',
+      headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    const text = await res.text();
+    let json;
+    try { json = text ? JSON.parse(text) : {}; } catch { json = { raw: text }; }
+    if (res.status === 401) {
+      clearToken();
+      setView('login');
+      throw new Error('Sessão expirada. Volta a entrar.');
+    }
+    if (!res.ok) throw new Error(json.error || `Erro ${res.status}`);
+    return json;
+  }
+
+  // ===== Login =====
+  async function tryLogin(password) {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    const text = await res.text();
+    let json;
+    try { json = text ? JSON.parse(text) : {}; } catch { json = {}; }
+    if (!res.ok) throw new Error(json.error || `Erro ${res.status}`);
+    if (!json.token) throw new Error('Sem token na resposta');
+    setToken(json.token);
+    return json.token;
+  }
+
+  // ===== Boot =====
+  async function boot() {
+    const token = getToken();
+    if (!token) {
+      setView('login');
+      return;
+    }
     setView('loading');
     try {
-      await loadStaticData();
-      await loadCars();
+      await Promise.all([loadStaticData(), loadCars()]);
       setView('dashboard');
     } catch (e) {
-      setView('dashboard');
-      showError('errBox', 'Erro ao carregar dados: ' + e.message);
+      // 401 já mudou para login dentro do api()
+      if (state.view !== 'login') {
+        setView('dashboard');
+        showError('errBox', e.message || 'Erro ao carregar dados');
+      }
     }
   }
 
@@ -102,27 +127,6 @@
     state.equipment = equipment;
   }
 
-  // ===== API client =====
-  async function api(path, opts = {}) {
-    const user = netlifyIdentity.currentUser();
-    if (!user) throw new Error('Sessão expirada. Faz login outra vez.');
-    const token = await user.jwt();
-    const res = await fetch(`${API}/${path}`, {
-      method: opts.method || 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: opts.body ? JSON.stringify(opts.body) : undefined
-    });
-    const text = await res.text();
-    let json;
-    try { json = text ? JSON.parse(text) : {}; } catch { json = { raw: text }; }
-    if (!res.ok) throw new Error(json.error || `Erro ${res.status}`);
-    return json;
-  }
-
-  // ===== Cars list =====
   async function loadCars() {
     const { cars } = await api('cars');
     state.cars = cars || [];
@@ -161,7 +165,6 @@
     }).join('');
   }
 
-  // ===== Form =====
   function buildFormOnce() {
     if (state.formBuilt) return;
     const marcaSel = $('#f-marca');
@@ -233,7 +236,6 @@
     return payload;
   }
 
-  // ===== Photos =====
   function renderPhotos() {
     $('#photoCount').textContent = `${state.photos.length}/15`;
     $('#photosGrid').innerHTML = state.photos.map((url, i) => `
@@ -273,13 +275,33 @@
 
   // ===== Event wiring =====
   document.addEventListener('DOMContentLoaded', () => {
-    $('#btnLogin')?.addEventListener('click', () => netlifyIdentity.open());
-    $('#btnLogout')?.addEventListener('click', () => netlifyIdentity.logout());
+    // Login form
+    $('#loginForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError('loginError');
+      const pw = $('#loginPassword').value;
+      if (!pw) return;
+      const btn = $('#btnLogin');
+      btn.disabled = true; btn.textContent = 'A entrar…';
+      try {
+        await tryLogin(pw);
+        $('#loginPassword').value = '';
+        await boot();
+      } catch (err) {
+        showError('loginError', err.message || 'Erro a entrar');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Entrar';
+      }
+    });
+
+    $('#btnLogout')?.addEventListener('click', () => {
+      clearToken();
+      setView('login');
+    });
+
     $('#btnAddCar')?.addEventListener('click', () => openForm(null));
     $('#btnCancel')?.addEventListener('click', () => {
-      if (confirm('As alterações não guardadas perdem-se. Cancelar?')) {
-        setView('dashboard');
-      }
+      if (confirm('As alterações não guardadas perdem-se. Cancelar?')) setView('dashboard');
     });
 
     $('#carsList')?.addEventListener('click', async (e) => {
@@ -313,8 +335,10 @@
           await loadCars();
         }
       } catch (err) {
-        showError('errBox', err.message || 'Erro desconhecido');
-        await loadCars();
+        if (state.view !== 'login') {
+          showError('errBox', err.message || 'Erro desconhecido');
+          await loadCars().catch(() => {});
+        }
       }
     });
 
@@ -333,7 +357,7 @@
         await loadCars();
         setView('dashboard');
       } catch (err) {
-        showError('formErr', 'Erro a guardar: ' + err.message);
+        showError('formErr', 'Erro a guardar: ' + (err.message || ''));
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Guardar';
@@ -364,5 +388,8 @@
       state.photos.splice(i, 1);
       renderPhotos();
     });
+
+    // Start
+    boot();
   });
 })();

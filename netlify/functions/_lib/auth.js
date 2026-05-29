@@ -1,10 +1,16 @@
-// Verifica que o request vem de um utilizador autenticado via Netlify Identity.
-// O contexto é injetado automaticamente pela Netlify quando o frontend manda
-// o JWT no header Authorization: Bearer <token>.
-exports.checkAuth = (context) => {
-  const cc = context && context.clientContext;
-  if (!cc || !cc.user) {
-    return { ok: false, error: "Sessão inválida ou expirada. Volta a entrar." };
+// Verifica o JWT do header Authorization: Bearer <token>
+const { verify } = require("./jwt");
+
+exports.checkAuth = (event) => {
+  const headers = event && event.headers ? event.headers : {};
+  const h = headers.authorization || headers.Authorization;
+  if (!h || !h.startsWith("Bearer ")) {
+    return { ok: false, error: "Sessão inválida. Faz login outra vez." };
   }
-  return { ok: true, user: cc.user };
+  const token = h.slice(7).trim();
+  const payload = verify(token);
+  if (!payload) {
+    return { ok: false, error: "Sessão expirada ou inválida. Faz login outra vez." };
+  }
+  return { ok: true, user: payload };
 };

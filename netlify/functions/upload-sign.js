@@ -3,8 +3,8 @@
 const crypto = require("crypto");
 const { checkAuth } = require("./_lib/auth");
 
-exports.handler = async (event, context) => {
-  const auth = checkAuth(context);
+exports.handler = async (event) => {
+  const auth = checkAuth(event);
   if (!auth.ok) {
     return { statusCode: 401, body: JSON.stringify({ error: auth.error }) };
   }
