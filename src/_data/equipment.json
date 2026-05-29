@@ -1,0 +1,86 @@
+[
+  {
+    "category": "Conforto",
+    "items": [
+      "AC",
+      "Climatronic",
+      "Climatronic bizona",
+      "Vidros elétricos",
+      "Fechos centrais",
+      "Direção assistida",
+      "Computador de bordo",
+      "Cruise control",
+      "Bancos aquecidos",
+      "Bancos elétricos",
+      "Bancos com memória",
+      "Volante multifunções",
+      "Teto solar elétrico",
+      "Bancos em pele",
+      "Bancos em pele/tecido"
+    ]
+  },
+  {
+    "category": "Segurança",
+    "items": [
+      "ABS",
+      "ESP",
+      "Airbags frontais",
+      "Airbags laterais",
+      "Airbags cortina",
+      "Sensores estac. dianteiros",
+      "Sensores estac. traseiros",
+      "Câmara traseira",
+      "Câmara 360º",
+      "Sensor chuva",
+      "Sensor luminosidade",
+      "Assistente de faixa",
+      "Travagem de emergência"
+    ]
+  },
+  {
+    "category": "Tecnologia",
+    "items": [
+      "GPS / Navegação",
+      "Bluetooth",
+      "USB",
+      "Apple CarPlay",
+      "Android Auto",
+      "Comando de voz",
+      "Head-up display",
+      "Ecrã táctil",
+      "Carregamento sem fios",
+      "Wi-Fi a bordo",
+      "Sistema áudio premium",
+      "Harman Kardon",
+      "Bose",
+      "Bang & Olufsen"
+    ]
+  },
+  {
+    "category": "Exterior",
+    "items": [
+      "Jantes liga leve",
+      "Faróis xénon",
+      "Faróis LED",
+      "Faróis adaptativos",
+      "Luzes diurnas LED",
+      "Vidros tintados",
+      "Barras de tejadilho",
+      "Engate de reboque",
+      "Teto solar panorâmico"
+    ]
+  },
+  {
+    "category": "Especiais",
+    "items": [
+      "Modo SPORT",
+      "Modo ECO PRO",
+      "Bagageira elétrica",
+      "Comfort Access (chave proximidade)",
+      "Start/Stop",
+      "Acesso sem chave",
+      "Bancos desportivos",
+      "Vidros privacy"
+    ]
+  }
+]

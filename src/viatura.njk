@@ -1,0 +1,111 @@
+---
+pagination:
+  data: cars
+  size: 1
+  alias: car
+permalink: "/viatura/{{ car.slug }}/"
+layout: base.njk
+eleventyComputed:
+  title: "{{ car.marca }} {{ car.modelo }} — {{ site.name }}"
+  description: "{{ car.marca }} {{ car.modelo }} de {{ car.ano }}, {{ car.km }} km, {{ car.comb }}. Disponível no {{ site.name }} em {{ site.address.area }}."
+  ogTitle: "{{ car.marca }} {{ car.modelo }} — {{ car.preco }} €"
+  ogImage: "/assets/cars/{{ car.photos[0] }}"
+---
+
+<main id="top" class="car-page">
+  <div class="wrap">
+    <a href="/#viaturas" class="back-link">← Voltar às viaturas</a>
+  </div>
+
+  <article class="car-detail">
+    <div class="wrap">
+      <div class="car-detail-hero">
+        <div class="car-detail-photos">
+          <div class="car-detail-main">
+            <img id="mainPhoto" src="/assets/cars/{{ car.photos[0] }}" alt="{{ car.marca }} {{ car.modelo }}">
+            <span class="marca-badge lg">{{ car.marca }}</span>
+            {% if car.status == 'sold' %}<span class="sold-stamp lg">Vendido</span>{% endif %}
+          </div>
+          {% if car.photos | length > 1 %}
+          <div class="car-detail-thumbs">
+            {% for photo in car.photos %}
+            <button class="thumb{% if loop.first %} active{% endif %}" type="button" data-src="/assets/cars/{{ photo }}">
+              <img src="/assets/cars/{{ photo }}" alt="">
+            </button>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        <div class="car-detail-summary">
+          <h1 class="disp">{{ car.marca }}</h1>
+          <p class="mod">{{ car.modelo }}</p>
+          <div class="car-detail-price">{{ car.preco | price }}</div>
+          <div class="car-detail-quickspecs">
+            <div><span>Ano</span><b>{{ car.ano }}</b></div>
+            <div><span>Km</span><b>{{ car.km | km }}</b></div>
+            <div><span>Combustível</span><b>{{ car.comb }}</b></div>
+            <div><span>Caixa</span><b>{{ car.caixa }}</b></div>
+          </div>
+          {% set waMsg = "Olá " + site.name + ", tenho interesse no " + car.marca + " " + car.modelo + " (" + (car.preco | string) + " €). Ainda está disponível?" %}
+          <div class="car-detail-cta">
+            <a class="btn btn-gold btn-lg" href="tel:{{ site.phoneIntl }}" style="color:#000">📞 Ligar agora</a>
+            <a class="btn btn-out btn-lg" href="{{ waMsg | waLink(site.whatsapp) }}" target="_blank" rel="noopener">WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="car-detail-body">
+        <div class="car-detail-section">
+          <h2 class="section-title">Especificações</h2>
+          <div class="spec-grid">
+            <div><span>Ano</span><b>{{ car.ano }}{% if car.mes %} · {{ car.mes }}{% endif %}</b></div>
+            <div><span>Quilómetros</span><b>{{ car.km | km }}</b></div>
+            <div><span>Combustível</span><b>{{ car.comb }}</b></div>
+            <div><span>Caixa</span><b>{{ car.caixa }}</b></div>
+            {% if car.cv %}<div><span>Potência</span><b>{{ car.cv }} cv</b></div>{% endif %}
+            {% if car.cc %}<div><span>Cilindrada</span><b>{{ car.cc }} cc</b></div>{% endif %}
+            {% if car.tracao %}<div><span>Tração</span><b>{{ car.tracao }}</b></div>{% endif %}
+            {% if car.portas %}<div><span>Portas</span><b>{{ car.portas }}</b></div>{% endif %}
+            {% if car.lugares %}<div><span>Lugares</span><b>{{ car.lugares }}</b></div>{% endif %}
+            {% if car.cor %}<div><span>Cor</span><b>{{ car.cor }}</b></div>{% endif %}
+            {% if car.carroceria %}<div><span>Carroçaria</span><b>{{ car.carroceria }}</b></div>{% endif %}
+            {% if car.origem %}<div><span>Origem</span><b>{{ car.origem }}</b></div>{% endif %}
+            {% if car.donos %}<div><span>Donos anteriores</span><b>{{ car.donos }}</b></div>{% endif %}
+            {% if car.garantia %}<div><span>Garantia</span><b>{{ car.garantia }}</b></div>{% endif %}
+            {% if car.inspecao %}<div><span>Inspeção</span><b>{{ car.inspecao }}</b></div>{% endif %}
+          </div>
+        </div>
+
+        {% if car.extras and (car.extras | length) %}
+        <div class="car-detail-section">
+          <h2 class="section-title">Equipamento e extras</h2>
+          <ul class="extras-list">
+            {% for extra in car.extras %}<li>{{ extra }}</li>{% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if car.desc %}
+        <div class="car-detail-section">
+          <h2 class="section-title">Descrição</h2>
+          <p class="car-detail-desc">{{ car.desc }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+
+  {% set related = cars | relatedCars(car.id, 3) %}
+  {% if related and (related | length) %}
+  <section class="related">
+    <div class="wrap">
+      <div class="head" style="flex-direction:column;align-items:flex-start"><span class="kick">Veja também</span><h2 class="disp">Outras viaturas</h2></div>
+      <div class="grid">
+        {% for c in related %}
+          {% include "partials/car-card.njk" %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+</main>

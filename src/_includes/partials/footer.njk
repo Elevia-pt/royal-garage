@@ -1,0 +1,32 @@
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <img src="/assets/logo.jpg" alt="{{ site.name }}">
+        <b>{{ site.name }}</b>
+        <p>{{ site.description }}</p>
+      </div>
+      <div>
+        <h5>Navegação</h5>
+        <ul>
+          <li><a href="/#viaturas">Viaturas</a></li>
+          <li><a href="/#porque">Sobre</a></li>
+          <li><a href="/#localizacao">Localização</a></li>
+          <li><a href="/#contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contactos</h5>
+        <ul>
+          <li><a href="tel:{{ site.phoneIntl }}">{{ site.phone }}</a></li>
+          <li><a href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener">WhatsApp</a></li>
+          <li>{{ site.address.street }}, {{ site.address.area }}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© {% currentYear %} {{ site.name }}. Todos os direitos reservados.</span>
+      <span>{{ site.address.area }} · {{ site.address.municipality }}</span>
+    </div>
+  </div>
+</footer>

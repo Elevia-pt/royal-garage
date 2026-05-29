@@ -1,0 +1,29 @@
+<article class="car{% if c.status == 'sold' %} sold{% endif %}{% if c.featured %} is-featured{% endif %}"
+  data-marca="{{ c.marca }}"
+  data-comb="{{ c.comb }}"
+  data-caixa="{{ c.caixa }}"
+  data-carroceria="{{ c.carroceria }}"
+  data-preco="{{ c.preco }}"
+  data-ano="{{ c.ano }}"
+  data-km="{{ c.km }}"
+  data-created="{{ c.createdAt }}"
+  data-status="{{ c.status }}">
+  <a href="/viatura/{{ c.slug }}/" class="car-link">
+    <div class="car-media">
+      <img src="/assets/cars/{{ c.photos[0] }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
+      <span class="marca-badge">{{ c.marca }}</span>
+      <span class="price-badge">{{ c.preco | price }}</span>
+      {% if c.status == 'sold' %}<span class="sold-stamp">Vendido</span>{% endif %}
+    </div>
+    <div class="car-body">
+      <div><h3>{{ c.marca }}</h3><div class="mod">{{ c.modelo }}</div></div>
+      <div class="specs">
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>{{ c.ano }}</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20l4-16M20 20l-4-16M12 5v2M12 11v2M12 17v2"/></svg>{{ c.km | km }}</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="11" height="18" rx="1"/><path d="M14 8h3a2 2 0 0 1 2 2v6a2 2 0 0 0 2 2"/></svg>{{ c.comb }}</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>{{ c.caixa }}</div>
+      </div>
+      <span class="btn btn-gold car-cta" style="color:#000">Ver detalhes →</span>
+    </div>
+  </a>
+</article>

@@ -1,0 +1,27 @@
+{
+  "name": "Royal Garage",
+  "tagline": "Stand de automóveis em Famões",
+  "description": "Stand de automóveis em Famões. Viaturas usadas com financiamento, garantia e retoma. Liga já 924 296 020.",
+  "phone": "924 296 020",
+  "phoneIntl": "+351924296020",
+  "whatsapp": "351924296020",
+  "whatsappDefaultMsg": "Olá Royal Garage, gostava de mais informações.",
+  "yearStarted": 2022,
+  "address": {
+    "street": "Praceta Crisântemos, n.º 1",
+    "area": "Quinta das Dálias, Famões",
+    "municipality": "Odivelas",
+    "country": "Portugal",
+    "googleMapsQuery": "Praceta Crisântemos 1, Famões"
+  },
+  "hours": {
+    "weekdays": "Seg–Sex: 10:00 – 19:00",
+    "saturday": "Sáb: 10:00 – 13:00",
+    "sunday": "Domingo: Encerrado"
+  },
+  "social": {
+    "facebook": "",
+    "instagram": ""
+  },
+  "leadsEmail": ""
+}
