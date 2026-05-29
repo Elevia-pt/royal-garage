@@ -6,14 +6,24 @@ permalink: /
 {% if not featured %}{% set featured = cars[0] %}{% endif %}
 
 <main id="top">
-  <section class="hero" style="background-image: linear-gradient(75deg,rgba(10,10,12,.97) 28%,rgba(10,10,12,.55) 70%,rgba(10,10,12,.35)),url('/assets/cars/{{ featured.photos[0] }}');">
-    <div class="wrap hero-in">
+  {% set waCarMsg = "Olá " + site.name + ", tenho interesse no " + featured.marca + " " + featured.modelo + ". Ainda está disponível?" %}
+  <section class="hero hero-feature" style="--hero-photo: url('/assets/cars/{{ featured.photos[0] }}');">
+    <div class="wrap hero-feature-in">
       <span class="kick">{{ site.tagline }}</span>
-      <h1 class="disp">Encontra o teu <em class="gold">próximo carro</em></h1>
-      <p>Viaturas selecionadas e inspecionadas, com financiamento, garantia e retoma. Tratamos de tudo por ti.</p>
-      <div class="cta">
-        <a class="btn btn-gold" href="#viaturas" style="color:#000">Ver stock <span class="arr">→</span></a>
-        <a class="btn btn-out" href="{{ site.whatsappDefaultMsg | waLink(site.whatsapp) }}" target="_blank" rel="noopener">WhatsApp</a>
+      <h1 class="hero-welcome">
+        <span class="welcome">Bem-vindo ao</span>
+        <span class="brand-name disp">{{ site.name }}</span>
+      </h1>
+      <div class="hero-divider"></div>
+      <div class="hero-feature-card">
+        <span class="destaque-tag">Em destaque</span>
+        <h2 class="disp">{{ featured.marca }} {{ featured.modelo }}</h2>
+        <p class="hero-feature-specs">{{ featured.ano }} · {{ featured.km | km }} · {{ featured.comb }}{% if featured.cv %} · {{ featured.cv }} cv{% endif %}</p>
+        <div class="hero-feature-price">{{ featured.preco | price }}</div>
+        <div class="cta">
+          <a class="btn btn-gold" href="/viatura/{{ featured.slug }}/" style="color:#000">Ver detalhes <span class="arr">→</span></a>
+          <a class="btn btn-out" href="{{ waCarMsg | waLink(site.whatsapp) }}" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
       </div>
     </div>
   </section>
@@ -25,35 +35,6 @@ permalink: /
       <div class="stat"><div class="num gold" data-count="100" data-suffix="%">0</div><div class="lbl">Inspecionadas</div></div>
     </div>
   </div>
-
-  {% if featured %}
-  <section class="destaque-section">
-    <div class="wrap">
-      <div class="head reveal" style="justify-content:center;text-align:center;flex-direction:column">
-        <span class="kick">Viatura em destaque</span>
-        <h2 class="disp">A escolha do mês</h2>
-      </div>
-      <a href="/viatura/{{ featured.slug }}/" class="destaque-card reveal">
-        <div class="destaque-media">
-          <img src="/assets/cars/{{ featured.photos[0] }}" alt="{{ featured.marca }} {{ featured.modelo }}">
-          <span class="destaque-tag">DESTAQUE</span>
-        </div>
-        <div class="destaque-body">
-          <h3 class="disp">{{ featured.marca }}</h3>
-          <p class="mod">{{ featured.modelo }}</p>
-          <ul class="destaque-specs">
-            <li><span>Ano</span><b>{{ featured.ano }}</b></li>
-            <li><span>Km</span><b>{{ featured.km | km }}</b></li>
-            <li><span>Combustível</span><b>{{ featured.comb }}</b></li>
-            <li><span>Potência</span><b>{{ featured.cv }} cv</b></li>
-          </ul>
-          <div class="destaque-price">{{ featured.preco | price }}</div>
-          <span class="btn btn-gold" style="color:#000">Ver detalhes →</span>
-        </div>
-      </a>
-    </div>
-  </section>
-  {% endif %}
 
   <section id="viaturas">
     <div class="wrap">
