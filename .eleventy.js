@@ -2,6 +2,10 @@ module.exports = function (eleventyConfig) {
   // Copy everything under public/ to site root (assets, etc.)
   eleventyConfig.addPassthroughCopy({ "public": "/" });
 
+  // Expor brands.json + equipment.json ao admin SPA via /data/*.json
+  eleventyConfig.addPassthroughCopy({ "src/_data/brands.json": "data/brands.json" });
+  eleventyConfig.addPassthroughCopy({ "src/_data/equipment.json": "data/equipment.json" });
+
   // Watch CSS/JS in public for live reload during `npm run dev`
   eleventyConfig.addWatchTarget("./public/");
 

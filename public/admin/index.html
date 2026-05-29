@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Royal Garage</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/assets/logo.jpg" type="image/jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+
+<section id="view-loading" class="view">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p>A carregar…</p>
+  </div>
+</section>
+
+<section id="view-login" class="view hidden">
+  <div class="login-card">
+    <img src="/assets/logo.jpg" alt="Royal Garage" class="login-logo">
+    <h1>Painel Royal Garage</h1>
+    <p>Acede com o teu email e senha para gerir o stock de viaturas.</p>
+    <button class="btn btn-primary btn-big" id="btnLogin">Entrar</button>
+    <p class="hint">Se ainda não tens conta, pede ao administrador para te convidar.</p>
+  </div>
+</section>
+
+<section id="view-dashboard" class="view hidden">
+  <header class="topbar">
+    <div class="brand">
+      <img src="/assets/logo.jpg" alt="">
+      <strong>Royal Garage</strong>
+      <span class="badge-admin">ADMIN</span>
+    </div>
+    <div class="topbar-right">
+      <span id="userEmail" class="user-email"></span>
+      <button class="btn btn-link" id="btnLogout">Sair</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="dash-header">
+      <h1>Stock de viaturas</h1>
+      <button class="btn btn-primary" id="btnAddCar">＋ Adicionar carro</button>
+    </div>
+    <div id="errBox" class="err-box hidden"></div>
+    <div id="carsList" class="cars-list"></div>
+  </main>
+</section>
+
+<section id="view-form" class="view hidden">
+  <header class="topbar">
+    <div class="brand">
+      <img src="/assets/logo.jpg" alt="">
+      <strong>Royal Garage</strong>
+      <span class="badge-admin">ADMIN</span>
+    </div>
+  </header>
+
+  <form id="carForm" class="container form-container" novalidate>
+    <div class="form-top">
+      <h1 id="formTitle">Adicionar carro</h1>
+      <div class="form-top-actions">
+        <button type="button" class="btn btn-secondary" id="btnCancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSave">Guardar</button>
+      </div>
+    </div>
+
+    <div id="formErr" class="err-box hidden"></div>
+
+    <details class="form-section" open>
+      <summary><span><b>Básico</b> <span class="req">obrigatório</span></span></summary>
+      <div class="grid g-3">
+        <label>Marca *<select name="marca" id="f-marca" required></select></label>
+        <label>Modelo *<input type="text" name="modelo" required></label>
+        <label>Versão<input type="text" name="versao" placeholder="ex: 320 d ED Advantage"></label>
+        <label>Ano *<input type="number" name="ano" min="1950" max="2030" required></label>
+        <label>Mês<select name="mes"><option value="">—</option><option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option></select></label>
+        <label>Quilómetros *<input type="number" name="km" min="0" required></label>
+        <label>Combustível *<select name="comb" required><option value="">—</option><option>Diesel</option><option>Gasolina</option><option>Híbrido</option><option>Híbrido Plug-in</option><option>Elétrico</option><option>GPL</option></select></label>
+        <label>Caixa *<select name="caixa" required><option value="">—</option><option>Manual</option><option>Manual 5V</option><option>Manual 6V</option><option>Automática</option><option>Semi-automática</option></select></label>
+        <label>Preço (€) *<input type="number" name="preco" min="0" required></label>
+      </div>
+    </details>
+
+    <details class="form-section">
+      <summary><span><b>Mecânica</b></span></summary>
+      <div class="grid g-3">
+        <label>Cilindrada (cc)<input type="number" name="cc" min="0"></label>
+        <label>Potência (cv)<input type="number" name="cv" min="0"></label>
+        <label>Tração<select name="tracao"><option value="">—</option><option>Dianteira</option><option>Traseira</option><option>4x4</option></select></label>
+        <label>Portas<input type="number" name="portas" min="2" max="5"></label>
+        <label>Lugares<input type="number" name="lugares" min="2" max="9"></label>
+      </div>
+    </details>
+
+    <details class="form-section">
+      <summary><span><b>Visual</b></span></summary>
+      <div class="grid g-3">
+        <label>Cor exterior<input type="text" name="cor"></label>
+        <label>Carroçaria<select name="carroceria"><option value="">—</option><option>Hatchback</option><option>Sedan</option><option>Carrinha</option><option>SUV</option><option>Monovolume</option><option>Coupé</option><option>Descapotável</option><option>Pick-up</option></select></label>
+      </div>
+    </details>
+
+    <details class="form-section">
+      <summary><span><b>Documental</b></span></summary>
+      <div class="grid g-2">
+        <label>Origem<select name="origem"><option value="">—</option><option>Nacional</option><option>Importado</option></select></label>
+        <label>Donos anteriores<input type="number" name="donos" min="1"></label>
+        <label>Garantia<input type="text" name="garantia" placeholder="ex: 12 meses"></label>
+        <label>Inspeção válida<input type="text" name="inspecao" placeholder="ex: 09/2026"></label>
+      </div>
+    </details>
+
+    <details class="form-section">
+      <summary><span><b>Equipamento e extras</b></span></summary>
+      <div id="equipmentList" class="equipment-wrap"></div>
+    </details>
+
+    <details class="form-section" open>
+      <summary><span><b>Apresentação</b></span></summary>
+      <label>Descrição
+        <textarea name="desc" rows="4" placeholder="Texto livre sobre o estado, manutenção, histórico, etc."></textarea>
+      </label>
+      <div class="photos-block">
+        <h4>Fotos <span class="photo-count" id="photoCount">0/15</span></h4>
+        <p class="hint">A primeira foto é a capa. Arrasta ficheiros ou clica para escolher.</p>
+        <div id="dropzone" class="dropzone">
+          <span>📷</span><span>Arrasta fotos aqui ou clica para escolher</span>
+          <input type="file" id="photoInput" multiple accept="image/*" hidden>
+        </div>
+        <div id="photosGrid" class="photos-grid"></div>
+        <div id="uploadStatus" class="upload-status"></div>
+      </div>
+    </details>
+  </form>
+</section>
+
+<script src="/admin/admin.js" defer></script>
+</body>
+</html>

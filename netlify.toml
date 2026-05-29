@@ -13,6 +13,37 @@
   to = "/admin/index.html"
   status = 200
 
+# API → Netlify Functions (URLs limpas)
+[[redirects]]
+  from = "/api/cars"
+  to = "/.netlify/functions/cars-list"
+  status = 200
+
+[[redirects]]
+  from = "/api/cars/save"
+  to = "/.netlify/functions/cars-save"
+  status = 200
+
+[[redirects]]
+  from = "/api/cars/delete"
+  to = "/.netlify/functions/cars-delete"
+  status = 200
+
+[[redirects]]
+  from = "/api/cars/featured"
+  to = "/.netlify/functions/cars-set-featured"
+  status = 200
+
+[[redirects]]
+  from = "/api/cars/status"
+  to = "/.netlify/functions/cars-set-status"
+  status = 200
+
+[[redirects]]
+  from = "/api/upload/sign"
+  to = "/.netlify/functions/upload-sign"
+  status = 200
+
 # Pequenas otimizações de cache
 [[headers]]
   for = "/assets/*"
