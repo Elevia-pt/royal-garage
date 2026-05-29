@@ -37,6 +37,13 @@
 
   function fmtPrice(n) { return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €' : '—'; }
   function fmtKm(n) { return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' km' : '—'; }
+  // Resolve o URL da foto: URL completo (Cloudinary etc.) usa-se tal e qual;
+  // filename simples ("car-1.jpg") é uma foto local em /assets/cars/.
+  function photoUrl(p) {
+    if (!p) return '';
+    if (/^https?:\/\//i.test(p) || p.startsWith('/')) return p;
+    return '/assets/cars/' + p;
+  }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
       { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
@@ -130,7 +137,7 @@
     }
     list.innerHTML = state.cars.map(c => {
       const photo = (c.photos && c.photos[0])
-        ? `<img src="${esc(c.photos[0])}" alt="">`
+        ? `<img src="${esc(photoUrl(c.photos[0]))}" alt="">`
         : '<span class="no-photo">📷</span>';
       const isSold = c.status === 'sold';
       return `
@@ -231,7 +238,7 @@
     $('#photoCount').textContent = `${state.photos.length}/15`;
     $('#photosGrid').innerHTML = state.photos.map((url, i) => `
       <div class="photo-item" data-i="${i}">
-        <img src="${esc(url)}" alt="">
+        <img src="${esc(photoUrl(url))}" alt="">
         ${i === 0 ? '<span class="cover">CAPA</span>' : ''}
         <button type="button" class="photo-remove" data-i="${i}" title="Remover">×</button>
       </div>`).join('');
