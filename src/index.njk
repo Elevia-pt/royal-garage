@@ -1,8 +1,6 @@
 ---
 layout: base.njk
 permalink: /
-title: "{{ site.name }} — {{ site.tagline }}"
-description: "{{ site.description }}"
 ---
 {% set featured = cars | selectattr("featured") | first %}
 {% if not featured %}{% set featured = cars[0] %}{% endif %}
