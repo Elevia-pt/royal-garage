@@ -1,9 +1,32 @@
 (function () {
   'use strict';
 
-  const API = '/api';
-  const TOKEN_KEY = 'rg_token';
+  // ===== Bootstrap config =====
+  const cfg = window.RG_AUTH || {};
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    document.body.innerHTML =
+      '<div style="padding:40px;color:#fca5a5;font-family:system-ui">' +
+      '⚠️ Supabase não configurado. Verifica que as env vars <code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code> estão metidas no Netlify, e faz um redeploy.</div>';
+    return;
+  }
+  if (!window.supabase || !window.supabase.createClient) {
+    document.body.innerHTML =
+      '<div style="padding:40px;color:#fca5a5;font-family:system-ui">⚠️ Falha a carregar o SDK do Supabase. Verifica a tua ligação à net.</div>';
+    return;
+  }
+
+  const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: 'implicit'
+    }
+  });
+
   const $ = (s) => document.querySelector(s);
+  const VIEWS = ['loading', 'login', 'recovery', 'dashboard', 'form'];
+  const NUMERIC_FIELDS = ['ano', 'km', 'preco', 'cc', 'cv', 'portas', 'lugares', 'donos'];
 
   const state = {
     view: 'loading',
@@ -13,10 +36,8 @@
     brands: [],
     equipment: [],
     formBuilt: false,
+    inRecovery: false
   };
-
-  const VIEWS = ['loading', 'login', 'dashboard', 'form'];
-  const NUMERIC_FIELDS = ['ano', 'km', 'preco', 'cc', 'cv', 'portas', 'lugares', 'donos'];
 
   function setView(name) {
     state.view = name;
@@ -26,19 +47,19 @@
     });
     window.scrollTo(0, 0);
   }
-
   function showError(elId, msg) {
     const el = document.getElementById(elId);
     if (!el) { alert(msg); return; }
     el.textContent = msg;
     el.classList.remove('hidden');
-    if (elId !== 'loginError') setTimeout(() => el.classList.add('hidden'), 9000);
+    if (elId !== 'loginError' && elId !== 'recoveryError') {
+      setTimeout(() => el.classList.add('hidden'), 9000);
+    }
   }
   function hideError(elId) {
     const el = document.getElementById(elId);
     if (el) el.classList.add('hidden');
   }
-
   function fmtPrice(n) { return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €' : '—'; }
   function fmtKm(n) { return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' km' : '—'; }
   function esc(s) {
@@ -53,18 +74,17 @@
     return '/assets/cars/' + p;
   }
 
-  // ===== Token =====
-  function getToken() { return localStorage.getItem(TOKEN_KEY); }
-  function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
-  function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+  async function getAccessToken() {
+    const { data } = await sb.auth.getSession();
+    return data && data.session ? data.session.access_token : null;
+  }
 
-  // ===== API =====
   async function api(path, opts) {
     opts = opts || {};
-    const token = getToken();
+    const token = await getAccessToken();
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
-    const res = await fetch(`${API}/${path}`, {
+    const res = await fetch(`/api/${path}`, {
       method: opts.method || 'GET',
       headers,
       body: opts.body ? JSON.stringify(opts.body) : undefined
@@ -73,7 +93,7 @@
     let json;
     try { json = text ? JSON.parse(text) : {}; } catch { json = { raw: text }; }
     if (res.status === 401) {
-      clearToken();
+      await sb.auth.signOut();
       setView('login');
       throw new Error('Sessão expirada. Volta a entrar.');
     }
@@ -81,35 +101,26 @@
     return json;
   }
 
-  // ===== Login =====
-  async function tryLogin(password) {
-    const res = await fetch(`${API}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
-    });
-    const text = await res.text();
-    let json;
-    try { json = text ? JSON.parse(text) : {}; } catch { json = {}; }
-    if (!res.ok) throw new Error(json.error || `Erro ${res.status}`);
-    if (!json.token) throw new Error('Sem token na resposta');
-    setToken(json.token);
-    return json.token;
-  }
-
-  // ===== Boot =====
   async function boot() {
-    const token = getToken();
-    if (!token) {
+    if (state.inRecovery) {
+      setView('recovery');
+      return;
+    }
+    const { data } = await sb.auth.getSession();
+    const session = data && data.session;
+    if (!session) {
       setView('login');
       return;
+    }
+    const emailEl = $('#userEmail');
+    if (emailEl && session.user && session.user.email) {
+      emailEl.textContent = session.user.email;
     }
     setView('loading');
     try {
       await Promise.all([loadStaticData(), loadCars()]);
       setView('dashboard');
     } catch (e) {
-      // 401 já mudou para login dentro do api()
       if (state.view !== 'login') {
         setView('dashboard');
         showError('errBox', e.message || 'Erro ao carregar dados');
@@ -191,7 +202,6 @@
     resetForm();
     state.editingId = car ? car.id : null;
     $('#formTitle').textContent = car ? `Editar: ${car.marca} ${car.modelo}` : 'Adicionar carro';
-
     if (car) {
       const form = $('#carForm');
       ['marca', 'modelo', 'versao', 'ano', 'mes', 'km', 'comb', 'caixa', 'preco',
@@ -273,18 +283,30 @@
     }
   }
 
+  // ===== Auth state listener =====
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      state.inRecovery = true;
+      setView('recovery');
+    } else if (event === 'SIGNED_OUT') {
+      state.cars = [];
+      state.inRecovery = false;
+      setView('login');
+    }
+  });
+
   // ===== Event wiring =====
   document.addEventListener('DOMContentLoaded', () => {
-    // Login form
     $('#loginForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       hideError('loginError');
-      const pw = $('#loginPassword').value;
-      if (!pw) return;
+      const email = $('#loginEmail').value.trim();
+      const password = $('#loginPassword').value;
       const btn = $('#btnLogin');
       btn.disabled = true; btn.textContent = 'A entrar…';
       try {
-        await tryLogin(pw);
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
         $('#loginPassword').value = '';
         await boot();
       } catch (err) {
@@ -294,9 +316,55 @@
       }
     });
 
-    $('#btnLogout')?.addEventListener('click', () => {
-      clearToken();
-      setView('login');
+    $('#btnForgot')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      hideError('loginError');
+      let email = $('#loginEmail').value.trim();
+      if (!email) {
+        email = (prompt('Email para receber o link de reset:') || '').trim();
+      }
+      if (!email) return;
+      try {
+        const { error } = await sb.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/admin/'
+        });
+        if (error) throw error;
+        const box = document.getElementById('loginError');
+        box.textContent = '✅ Email enviado para ' + email + '. Vê a caixa de entrada (e Spam).';
+        box.classList.remove('hidden');
+        box.style.color = '#86efac';
+        setTimeout(() => { box.style.color = ''; }, 100);
+      } catch (err) {
+        showError('loginError', err.message || 'Erro a enviar email');
+      }
+    });
+
+    $('#recoveryForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError('recoveryError');
+      const pw = $('#recoveryPassword').value;
+      const confirmPw = $('#recoveryConfirm').value;
+      if (pw !== confirmPw) { showError('recoveryError', 'As passwords não coincidem.'); return; }
+      if (pw.length < 6) { showError('recoveryError', 'Mínimo 6 caracteres.'); return; }
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true; btn.textContent = 'A guardar…';
+      try {
+        const { error } = await sb.auth.updateUser({ password: pw });
+        if (error) throw error;
+        state.inRecovery = false;
+        alert('Password atualizada com sucesso! 🎉');
+        // Limpar o hash do URL
+        history.replaceState(null, '', '/admin/');
+        await boot();
+      } catch (err) {
+        showError('recoveryError', err.message || 'Erro a atualizar');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Atualizar password';
+      }
+    });
+
+    $('#btnLogout')?.addEventListener('click', async () => {
+      await sb.auth.signOut();
     });
 
     $('#btnAddCar')?.addEventListener('click', () => openForm(null));
@@ -312,7 +380,6 @@
       const car = state.cars.find(c => c.id === id);
       if (!car) return;
       const action = btn.dataset.action;
-
       try {
         if (action === 'edit') {
           openForm(car);
@@ -389,7 +456,6 @@
       renderPhotos();
     });
 
-    // Start
     boot();
   });
 })();

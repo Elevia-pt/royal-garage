@@ -1,0 +1,9 @@
+---
+permalink: /admin/config.js
+eleventyExcludeFromCollections: true
+---
+// Gerado no build. Não editar à mão — vem das env vars do Netlify.
+window.RG_AUTH = {
+  supabaseUrl: {{ env.supabaseUrl | dump | safe }},
+  supabaseAnonKey: {{ env.supabaseAnonKey | dump | safe }}
+};

@@ -14,16 +14,7 @@
   status = 200
 
 # API → Netlify Functions (URLs limpas)
-[[redirects]]
-  from = "/api/auth/login"
-  to = "/.netlify/functions/auth-login"
-  status = 200
-
-[[redirects]]
-  from = "/api/cars"
-  to = "/.netlify/functions/cars-list"
-  status = 200
-
+# Regras mais específicas em cima — Netlify usa "first match wins" para regras equally-specific.
 [[redirects]]
   from = "/api/cars/save"
   to = "/.netlify/functions/cars-save"
@@ -47,6 +38,11 @@
 [[redirects]]
   from = "/api/upload/sign"
   to = "/.netlify/functions/upload-sign"
+  status = 200
+
+[[redirects]]
+  from = "/api/cars"
+  to = "/.netlify/functions/cars-list"
   status = 200
 
 # Pequenas otimizações de cache

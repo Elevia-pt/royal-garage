@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/admin/admin.css">
+<script src="/admin/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -21,13 +23,27 @@
 </section>
 
 <section id="view-login" class="view hidden">
-  <form class="login-card" id="loginForm" autocomplete="off">
+  <form class="login-card" id="loginForm" autocomplete="on">
     <img src="/assets/logo.jpg" alt="Royal Garage" class="login-logo">
     <h1>Painel Royal Garage</h1>
-    <p>Introduz a password de administrador.</p>
+    <p>Entra com o teu email e password.</p>
+    <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
     <button type="submit" class="btn btn-primary btn-big" id="btnLogin">Entrar</button>
+    <a href="#" class="link-forgot" id="btnForgot">Esqueci-me da password</a>
     <div id="loginError" class="err-box hidden"></div>
+  </form>
+</section>
+
+<section id="view-recovery" class="view hidden">
+  <form class="login-card" id="recoveryForm" autocomplete="off">
+    <img src="/assets/logo.jpg" alt="Royal Garage" class="login-logo">
+    <h1>Nova password</h1>
+    <p>Define a tua nova password (mín. 6 caracteres).</p>
+    <input type="password" id="recoveryPassword" placeholder="Nova password" required minlength="6" autocomplete="new-password">
+    <input type="password" id="recoveryConfirm" placeholder="Confirma a password" required minlength="6" autocomplete="new-password">
+    <button type="submit" class="btn btn-primary btn-big">Atualizar password</button>
+    <div id="recoveryError" class="err-box hidden"></div>
   </form>
 </section>
 
