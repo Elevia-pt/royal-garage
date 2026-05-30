@@ -8,7 +8,7 @@
     "mes": "Setembro",
     "km": 145000,
     "comb": "Diesel",
-    "caixa": "Automática (7G-DCT)",
+    "caixa": "Manual",
     "preco": 20500,
     "cc": 1461,
     "cv": 116,
@@ -23,22 +23,22 @@
     "inspecao": "09/2026",
     "extras": [
       "Climatronic",
-      "GPS / Navegação",
+      "Computador de bordo",
+      "Cruise control",
       "Sensores estac. traseiros",
       "Câmara traseira",
-      "Apple CarPlay / Android Auto",
-      "Jantes liga leve 17\"",
-      "Faróis LED",
-      "Banco aquecido",
+      "GPS / Navegação",
       "Bluetooth",
-      "Cruise control",
-      "Computador de bordo"
+      "Faróis LED"
     ],
     "desc": "Mercedes Classe A em excelente estado, com manutenção feita em concessionário. Caixa automática 7G-DCT suave, ideal para trânsito da cidade. Viatura inspecionada e pronta a entregar.",
-    "photos": ["car-1.jpg"],
+    "photos": [
+      "car-1.jpg"
+    ],
     "status": "available",
     "featured": false,
-    "createdAt": "2026-05-01"
+    "createdAt": "2026-05-01",
+    "updatedAt": "2026-05-30"
   },
   {
     "id": "opel-insignia-cdti-2011",
@@ -75,7 +75,9 @@
       "Bagageira elétrica"
     ],
     "desc": "Carrinha espaçosa, ideal para família ou trabalho. Versão Cosmo bem equipada com 160cv. Bom estado geral, motor 2.0 CDTi com excelente débito a baixa rotação.",
-    "photos": ["car-2.jpg"],
+    "photos": [
+      "car-2.jpg"
+    ],
     "status": "available",
     "featured": false,
     "createdAt": "2026-05-02"
@@ -115,7 +117,9 @@
       "Comfort Access"
     ],
     "desc": "BMW Série 5 topo de gama com motor 3.0 bi-turbo. 313cv de pura performance e conforto. Importado da Alemanha com histórico completo. Ideal para quem procura desempenho premium.",
-    "photos": ["car-3.jpg"],
+    "photos": [
+      "car-3.jpg"
+    ],
     "status": "available",
     "featured": true,
     "createdAt": "2026-05-03"
@@ -153,7 +157,9 @@
       "Airbags frontais e laterais"
     ],
     "desc": "Monovolume prático e económico, ideal como segundo carro ou para quem precisa de espaço. Manutenção em dia, perfeito para cidade.",
-    "photos": ["car-4.jpg"],
+    "photos": [
+      "car-4.jpg"
+    ],
     "status": "available",
     "featured": false,
     "createdAt": "2026-05-04"
@@ -192,7 +198,9 @@
       "Volante multifunções"
     ],
     "desc": "MINI Cooper SD divertido e ágil, versão diesel 170cv. Estado impecável, sempre garagem, único dono. Combina baixo consumo com prazer de condução.",
-    "photos": ["car-5.jpg"],
+    "photos": [
+      "car-5.jpg"
+    ],
     "status": "available",
     "featured": false,
     "createdAt": "2026-05-05"
@@ -231,7 +239,9 @@
       "Volante multifunções"
     ],
     "desc": "BMW Série 3 versão Advantage Efficient Dynamics, eficiente e equilibrado. Motor 320d 163cv, tração traseira. Excelente compromisso entre preço, qualidade e consumos.",
-    "photos": ["car-6.jpg"],
+    "photos": [
+      "car-6.jpg"
+    ],
     "status": "available",
     "featured": false,
     "createdAt": "2026-05-06"
