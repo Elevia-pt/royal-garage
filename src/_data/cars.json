@@ -13,7 +13,7 @@
     "preco": 123213213,
     "desc": "Test veiculo",
     "photos": [],
-    "status": "available",
+    "status": "sold",
     "featured": false,
     "createdAt": "2026-05-30",
     "updatedAt": "2026-05-30"
