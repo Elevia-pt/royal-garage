@@ -5,7 +5,7 @@ const { readCars, writeCars } = require("./_lib/github");
 const ALLOWED = ["available", "reserved", "sold"];
 
 exports.handler = async (event) => {
-  const auth = checkAuth(event);
+  const auth = await checkAuth(event);
   if (!auth.ok) {
     return { statusCode: 401, body: JSON.stringify({ error: auth.error }) };
   }

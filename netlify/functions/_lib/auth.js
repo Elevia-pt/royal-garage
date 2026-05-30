@@ -1,59 +1,42 @@
-// Verifica o JWT da Supabase (HS256, secret partilhado).
-// O secret vem das env vars do Netlify (SUPABASE_JWT_SECRET).
-const crypto = require("crypto");
+// Valida o token Supabase chamando o endpoint /auth/v1/user.
+// Vantagem: não precisamos do JWT secret nem de saber HS256/RS256.
+// A própria Supabase confirma se o token é válido.
 
-function getSecret() {
-  const s = process.env.SUPABASE_JWT_SECRET;
-  if (!s) {
-    throw new Error("SUPABASE_JWT_SECRET não configurado nas env vars do Netlify.");
-  }
-  return s;
-}
+async function verifyToken(token) {
+  const url = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
+  if (!url) throw new Error("SUPABASE_URL não configurado nas env vars do Netlify.");
+  if (!anon) throw new Error("SUPABASE_ANON_KEY não configurado nas env vars do Netlify.");
 
-function b64uToBuffer(s) {
-  // base64url → base64 (substitui caracteres e adiciona padding)
-  const b64 = s.replace(/-/g, "+").replace(/_/g, "/");
-  const pad = b64.length % 4 ? "=".repeat(4 - (b64.length % 4)) : "";
-  return Buffer.from(b64 + pad, "base64");
-}
-
-function verify(token) {
-  if (!token || typeof token !== "string") return null;
-  const parts = token.split(".");
-  if (parts.length !== 3) return null;
-  const [h, b, s] = parts;
-  let expected;
+  const base = url.replace(/\/+$/, ""); // tira barra(s) final(is) se existir
+  const res = await fetch(`${base}/auth/v1/user`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      apikey: anon
+    }
+  });
+  if (!res.ok) return null;
   try {
-    expected = crypto.createHmac("sha256", getSecret()).update(`${h}.${b}`).digest("base64url");
+    return await res.json();
   } catch {
     return null;
   }
-  if (s.length !== expected.length) return null;
-  try {
-    if (!crypto.timingSafeEqual(Buffer.from(s), Buffer.from(expected))) return null;
-  } catch {
-    return null;
-  }
-  let payload;
-  try {
-    payload = JSON.parse(b64uToBuffer(b).toString("utf8"));
-  } catch {
-    return null;
-  }
-  if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
-  return payload;
 }
 
-exports.checkAuth = (event) => {
+exports.checkAuth = async (event) => {
   const headers = event && event.headers ? event.headers : {};
   const h = headers.authorization || headers.Authorization;
   if (!h || !h.startsWith("Bearer ")) {
     return { ok: false, error: "Sessão inválida. Faz login outra vez." };
   }
   const token = h.slice(7).trim();
-  const payload = verify(token);
-  if (!payload) {
-    return { ok: false, error: "Sessão expirada ou inválida. Faz login outra vez." };
+  try {
+    const user = await verifyToken(token);
+    if (!user || !user.id) {
+      return { ok: false, error: "Sessão expirada ou inválida. Faz login outra vez." };
+    }
+    return { ok: true, user };
+  } catch (e) {
+    return { ok: false, error: e.message };
   }
-  return { ok: true, user: payload };
 };
