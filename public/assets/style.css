@@ -37,6 +37,8 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .menu{display:flex;align-items:center;gap:30px}
 .menu a{font-size:.86rem;font-weight:700;letter-spacing:.05em;color:var(--txt);transition:.2s}
 .menu a:hover{color:var(--gold)}
+.menu .login-link{font-size:.74rem;font-weight:600;color:var(--muted);opacity:.7;letter-spacing:.12em;text-transform:uppercase}
+.menu .login-link:hover{color:var(--gold);opacity:1}
 .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px}
 .burger span{width:26px;height:3px;background:var(--gold);border-radius:2px;transition:.3s}
 
