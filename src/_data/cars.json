@@ -223,20 +223,18 @@
     "lugares": 5,
     "cor": "Cinzento metalizado",
     "carroceria": "Sedan",
-    "origem": "Nacional",
+    "origem": "Importado",
     "donos": 2,
     "garantia": "12 meses",
     "inspecao": "02/2026",
     "extras": [
-      "Navegação Business",
-      "Sensores estac. traseiros",
       "Climatronic",
       "Computador de bordo",
-      "Modo ECO PRO",
-      "Bluetooth",
       "Cruise control",
-      "Jantes liga leve 17\"",
-      "Volante multifunções"
+      "Volante multifunções",
+      "Sensores estac. traseiros",
+      "Bluetooth",
+      "Modo ECO PRO"
     ],
     "desc": "BMW Série 3 versão Advantage Efficient Dynamics, eficiente e equilibrado. Motor 320d 163cv, tração traseira. Excelente compromisso entre preço, qualidade e consumos.",
     "photos": [
@@ -244,6 +242,7 @@
     ],
     "status": "available",
     "featured": false,
-    "createdAt": "2026-05-06"
+    "createdAt": "2026-05-06",
+    "updatedAt": "2026-06-01"
   }
 ]
