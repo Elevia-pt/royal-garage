@@ -25,7 +25,7 @@
   });
 
   const $ = (s) => document.querySelector(s);
-  const VIEWS = ['loading', 'login', 'recovery', 'dashboard', 'form'];
+  const VIEWS = ['loading', 'login', 'forgot', 'recovery', 'dashboard', 'form'];
   const NUMERIC_FIELDS = ['ano', 'km', 'preco', 'cc', 'cv', 'portas', 'lugares', 'donos'];
 
   const state = {
@@ -379,26 +379,44 @@
       }
     });
 
-    $('#btnForgot')?.addEventListener('click', async (e) => {
+    $('#btnForgot')?.addEventListener('click', (e) => {
       e.preventDefault();
       hideError('loginError');
-      let email = $('#loginEmail').value.trim();
-      if (!email) {
-        email = (prompt('Email para receber o link de reset:') || '').trim();
-      }
+      const email = $('#loginEmail').value.trim();
+      if (email) $('#forgotEmail').value = email;
+      hideError('forgotError');
+      $('#forgotNotice')?.classList.add('hidden');
+      setView('forgot');
+      setTimeout(() => $('#forgotEmail')?.focus(), 0);
+    });
+
+    $('#btnBackToLogin')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      hideError('forgotError');
+      $('#forgotNotice')?.classList.add('hidden');
+      setView('login');
+    });
+
+    $('#forgotForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError('forgotError');
+      $('#forgotNotice')?.classList.add('hidden');
+      const email = $('#forgotEmail').value.trim();
       if (!email) return;
+      const btn = $('#btnSendReset');
+      btn.disabled = true; btn.textContent = 'A enviar…';
       try {
         const { error } = await sb.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin + '/admin/'
         });
         if (error) throw error;
-        const box = document.getElementById('loginError');
-        box.textContent = '✅ Email enviado para ' + email + '. Vê a caixa de entrada (e Spam).';
+        const box = $('#forgotNotice');
+        box.textContent = '✓ Email enviado para ' + email + '. Vê a caixa de entrada (e Spam).';
         box.classList.remove('hidden');
-        box.style.color = '#86efac';
-        setTimeout(() => { box.style.color = ''; }, 100);
       } catch (err) {
-        showError('loginError', err.message || 'Erro a enviar email');
+        showError('forgotError', err.message || 'Erro a enviar email');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Enviar link de reset';
       }
     });
 

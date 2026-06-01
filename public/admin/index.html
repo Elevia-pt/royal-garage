@@ -35,6 +35,19 @@
   </form>
 </section>
 
+<section id="view-forgot" class="view hidden">
+  <form class="login-card" id="forgotForm" autocomplete="on">
+    <img src="/assets/logo.jpg" alt="Royal Garage" class="login-logo">
+    <h1>Recuperar password</h1>
+    <p>Diz-nos o teu email e enviamos-te um link para definir uma nova password.</p>
+    <input type="email" id="forgotEmail" placeholder="Email" required autocomplete="email">
+    <button type="submit" class="btn btn-primary btn-big" id="btnSendReset">Enviar link de reset</button>
+    <a href="#" class="link-forgot" id="btnBackToLogin">← Voltar ao login</a>
+    <div id="forgotError" class="err-box hidden"></div>
+    <div id="forgotNotice" class="notice-box hidden"></div>
+  </form>
+</section>
+
 <section id="view-recovery" class="view hidden">
   <form class="login-card" id="recoveryForm" autocomplete="off">
     <img src="/assets/logo.jpg" alt="Royal Garage" class="login-logo">
