@@ -1,24 +1,5 @@
 [
   {
-    "id": "bmw-asd-mps9hvg5",
-    "slug": "bmw-teste-sem-foto",
-    "marca": "BMW",
-    "modelo": "TESTE SEM FOTO",
-    "versao": "adasd",
-    "ano": 123123,
-    "mes": "Janeiro",
-    "km": 213123,
-    "comb": "Diesel",
-    "caixa": "Manual",
-    "preco": 123213213,
-    "desc": "Test veiculo",
-    "photos": [],
-    "status": "available",
-    "featured": false,
-    "createdAt": "2026-05-30",
-    "updatedAt": "2026-05-30"
-  },
-  {
     "id": "merc-a180d-2018",
     "slug": "mercedes-benz-a-180-d-7g-dct-progressive",
     "marca": "Mercedes-Benz",
