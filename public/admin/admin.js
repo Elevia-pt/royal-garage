@@ -256,6 +256,44 @@
       </div>`).join('');
   }
 
+  function compressImage(file, maxW, maxH, quality) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        const ratio = Math.min(maxW / width, maxH / height, 1);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            URL.revokeObjectURL(url);
+            if (!blob) return reject(new Error('Falha a comprimir.'));
+            resolve(blob);
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Imagem inválida.'));
+      };
+      img.src = url;
+    });
+  }
+
+  function fmtKB(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  }
+
   async function uploadFile(file) {
     if (state.photos.length >= 15) {
       alert('Máximo de 15 fotos por carro.');
@@ -263,11 +301,22 @@
     }
     if (!file.type.startsWith('image/')) return;
     const status = $('#uploadStatus');
-    status.textContent = `A enviar ${file.name}…`;
+    const skipCompress = file.type === 'image/gif' || file.type === 'image/svg+xml';
+    let payload = file;
+    let payloadName = file.name;
     try {
+      if (!skipCompress) {
+        status.textContent = `A comprimir ${file.name} (${fmtKB(file.size)})…`;
+        const blob = await compressImage(file, 1920, 1280, 0.82);
+        payload = blob;
+        payloadName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+        status.textContent = `A enviar ${payloadName} (${fmtKB(file.size)} → ${fmtKB(blob.size)})…`;
+      } else {
+        status.textContent = `A enviar ${file.name} (${fmtKB(file.size)})…`;
+      }
       const sign = await api('upload/sign');
       const fd = new FormData();
-      fd.append('file', file);
+      fd.append('file', payload, payloadName);
       fd.append('api_key', sign.apiKey);
       fd.append('timestamp', sign.timestamp);
       fd.append('signature', sign.signature);
@@ -277,7 +326,8 @@
       if (json.error) throw new Error(json.error.message || 'Falha no upload');
       state.photos.push(json.secure_url);
       renderPhotos();
-      status.textContent = '';
+      status.textContent = `✓ ${payloadName} enviado.`;
+      setTimeout(() => { if (status.textContent.startsWith('✓')) status.textContent = ''; }, 2500);
     } catch (e) {
       status.textContent = '❌ Erro: ' + e.message;
     }
