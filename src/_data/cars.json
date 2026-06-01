@@ -54,7 +54,7 @@
     "photos": [
       "car-1.jpg"
     ],
-    "status": "sold",
+    "status": "available",
     "featured": true,
     "createdAt": "2026-05-01",
     "updatedAt": "2026-05-30"
