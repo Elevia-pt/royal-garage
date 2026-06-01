@@ -133,6 +133,7 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .sold-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-18deg);background:rgba(220,38,38,.92);color:#fff;font-family:var(--disp);font-size:2.2rem;letter-spacing:.12em;padding:8px 26px;border:3px solid #fff;border-radius:8px;text-transform:uppercase;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.6);z-index:2}
 .sold-stamp.lg{font-size:3.8rem;padding:14px 40px;border-width:5px}
 .car.sold .car-media img{filter:grayscale(.6) brightness(.7)}
+.featured-card.sold .featured-card-media img{filter:grayscale(.6) brightness(.7)}
 
 /* Why */
 .why{background:var(--bg2)}

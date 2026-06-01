@@ -60,6 +60,13 @@
     const el = document.getElementById(elId);
     if (el) el.classList.add('hidden');
   }
+  function showNotice(msg) {
+    const el = document.getElementById('noticeBox');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 6000);
+  }
   function fmtPrice(n) { return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €' : '—'; }
   function fmtKm(n) { return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' km' : '—'; }
   function esc(s) {
@@ -72,6 +79,11 @@
     if (!p) return '';
     if (/^https?:\/\//i.test(p) || p.startsWith('/')) return p;
     return '/assets/cars/' + p;
+  }
+
+  function isRecoveryUrl() {
+    const hash = window.location.hash || '';
+    return /(^|[#&?])type=recovery(&|$)/.test(hash);
   }
 
   async function getAccessToken() {
@@ -102,7 +114,8 @@
   }
 
   async function boot() {
-    if (state.inRecovery) {
+    if (state.inRecovery || isRecoveryUrl()) {
+      state.inRecovery = true;
       setView('recovery');
       return;
     }
@@ -438,6 +451,7 @@
           btn.disabled = true; btn.textContent = '…';
           await api('cars/featured', { method: 'POST', body: { id } });
           await loadCars();
+          showNotice('✓ Destaque atualizado. O site público pode levar até 1 min a refletir.');
         } else if (action === 'status') {
           const next = car.status === 'sold' ? 'available' : 'sold';
           const verb = next === 'sold' ? 'VENDIDO' : 'disponível';
@@ -445,11 +459,13 @@
           btn.disabled = true; btn.textContent = '…';
           await api('cars/status', { method: 'POST', body: { id, status: next } });
           await loadCars();
+          showNotice(`✓ Marcado como ${verb}. O site público pode levar até 1 min a refletir.`);
         } else if (action === 'delete') {
           if (!confirm(`Remover "${car.marca} ${car.modelo}" definitivamente?\n\nIsto não pode ser desfeito.`)) return;
           btn.disabled = true; btn.textContent = '…';
           await api('cars/delete', { method: 'POST', body: { id } });
           await loadCars();
+          showNotice('✓ Viatura removida. O site público pode levar até 1 min a refletir.');
         }
       } catch (err) {
         if (state.view !== 'login') {
@@ -470,9 +486,11 @@
       saveBtn.disabled = true;
       saveBtn.textContent = 'A guardar…';
       try {
+        const wasEdit = !!state.editingId;
         await api('cars/save', { method: 'POST', body: payload });
         await loadCars();
         setView('dashboard');
+        showNotice(`✓ Viatura ${wasEdit ? 'atualizada' : 'adicionada'}. O site público pode levar até 1 min a refletir.`);
       } catch (err) {
         showError('formErr', 'Erro a guardar: ' + (err.message || ''));
       } finally {

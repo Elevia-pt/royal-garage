@@ -10,10 +10,11 @@ permalink: /
   <section class="hero-featured">
     <div class="wrap">
       <span class="kick">{{ site.tagline }}</span>
-      <article class="featured-card">
+      <article class="featured-card{% if featured.status == 'sold' %} sold{% endif %}">
         <div class="featured-card-media">
           <img src="/assets/cars/{{ featured.photos[0] }}" alt="{{ featured.marca }} {{ featured.modelo }}">
           <span class="destaque-badge">Em destaque</span>
+          {% if featured.status == 'sold' %}<span class="sold-stamp lg">Vendido</span>{% endif %}
         </div>
         <div class="featured-card-info">
           <h1 class="disp brand">{{ featured.marca }}</h1>
