@@ -36,10 +36,20 @@ module.exports = function (eleventyConfig) {
     return `https://wa.me/${phoneIntl}?text=${encodeURIComponent(text || "")}`;
   });
 
-  // Related cars (exclude current, take N)
+  // Related cars (exclude current + sold, take N)
   eleventyConfig.addFilter("relatedCars", (cars, currentId, n = 3) => {
-    return (cars || []).filter((c) => c.id !== currentId).slice(0, n);
+    return (cars || [])
+      .filter((c) => c.id !== currentId && c.status !== "sold")
+      .slice(0, n);
   });
+
+  // Filtrar por status (a venda = !sold; vendidos = sold)
+  eleventyConfig.addFilter("forSale", (cars) =>
+    (cars || []).filter((c) => c.status !== "sold")
+  );
+  eleventyConfig.addFilter("soldOnly", (cars) =>
+    (cars || []).filter((c) => c.status === "sold")
+  );
 
   // Current year (e.g., for footer)
   eleventyConfig.addShortcode("currentYear", () => new Date().getFullYear());

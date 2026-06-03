@@ -1,4 +1,4 @@
-<article class="car{% if c.status == 'sold' %} sold{% endif %}{% if c.featured %} is-featured{% endif %}"
+<article class="car{% if c.status == 'sold' %} sold{% endif %}{% if c.status == 'reserved' %} reserved{% endif %}{% if c.featured %} is-featured{% endif %}"
   data-marca="{{ c.marca }}"
   data-comb="{{ c.comb }}"
   data-caixa="{{ c.caixa }}"
@@ -13,6 +13,7 @@
       <img src="/assets/cars/{{ c.photos[0] }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
       <span class="marca-badge">{{ c.marca }}</span>
       <span class="price-badge">{{ c.preco | price }}</span>
+      {% if c.status == 'reserved' %}<span class="reserved-badge">Reservado</span>{% endif %}
       {% if c.status == 'sold' %}<span class="sold-stamp">Vendido</span>{% endif %}
     </div>
     <div class="car-body">

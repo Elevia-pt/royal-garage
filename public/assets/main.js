@@ -61,7 +61,7 @@
   );
   $$('[data-count]').forEach((el) => cio.observe(el));
 
-  // ===== Filters (homepage) =====
+  // ===== Filters + lazy grid (homepage) =====
   const grid = $('#grid');
   if (grid && $('#filters')) {
     const filterToggle = $('#filter-toggle');
@@ -87,8 +87,21 @@
     const countLabel = $('#filter-count');
     const emptyState = $('#empty-state');
     const clearBtn = $('#filter-clear');
+    const gridMore = $('#grid-more');
+    const btnShowAll = $('#btn-show-all');
+
+    const INITIAL = Number(grid.dataset.initial) || 6;
+    const BATCH = 6;
 
     const cards = $$('.car', grid);
+
+    let expanded = false; // user clicou "Ver tudo"
+    let lazyIO = null;
+    let sentinel = null;
+
+    function hasActiveFilters() {
+      return Object.entries(inputs).some(([k, i]) => k !== 'sort' && i?.value);
+    }
 
     function matches(card) {
       const d = card.dataset;
@@ -125,6 +138,30 @@
       });
     }
 
+    function teardownSentinel() {
+      if (lazyIO && sentinel) lazyIO.unobserve(sentinel);
+      if (sentinel) { sentinel.remove(); sentinel = null; }
+      lazyIO = null;
+    }
+
+    function revealLazyBatch() {
+      const stillLazy = cards.filter(c => c.classList.contains('lazy') && c.style.display !== 'none');
+      stillLazy.slice(0, BATCH).forEach(c => c.classList.remove('lazy'));
+      const remaining = cards.filter(c => c.classList.contains('lazy') && c.style.display !== 'none');
+      if (remaining.length === 0) teardownSentinel();
+    }
+
+    function setupInfiniteScroll() {
+      if (sentinel) return;
+      sentinel = document.createElement('div');
+      sentinel.className = 'grid-sentinel';
+      grid.parentElement.insertBefore(sentinel, grid.nextSibling);
+      lazyIO = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) revealLazyBatch();
+      }, { rootMargin: '300px' });
+      lazyIO.observe(sentinel);
+    }
+
     function apply() {
       const visible = [];
       cards.forEach((c) => {
@@ -138,6 +175,28 @@
         countLabel.textContent = `${visible.length} viatura${visible.length === 1 ? '' : 's'}`;
       }
       if (emptyState) emptyState.hidden = visible.length > 0;
+
+      const filterOn = hasActiveFilters();
+      if (filterOn) {
+        // Filtros ativos → revela todos os matches, sem lazy
+        cards.forEach((c) => c.classList.remove('lazy'));
+        if (gridMore) gridMore.classList.add('hidden');
+        teardownSentinel();
+      } else if (expanded) {
+        // Modo infinito ligado → mantém revelação atual + reativa observer
+        if (gridMore) gridMore.classList.add('hidden');
+        setupInfiniteScroll();
+      } else {
+        // Estado inicial: 6 + botão "Ver tudo"
+        visible.forEach((c, i) => {
+          if (i >= INITIAL) c.classList.add('lazy');
+          else c.classList.remove('lazy');
+        });
+        const extra = Math.max(0, visible.length - INITIAL);
+        if (gridMore) gridMore.classList.toggle('hidden', extra === 0);
+        if (btnShowAll && extra > 0) btnShowAll.textContent = `Ver tudo (+${extra})`;
+        teardownSentinel();
+      }
     }
 
     Object.values(inputs).forEach((input) => {
@@ -153,9 +212,21 @@
           if (input.tagName === 'SELECT') input.selectedIndex = 0;
           else input.value = '';
         });
+        expanded = false;
         apply();
       });
     }
+
+    if (btnShowAll) {
+      btnShowAll.addEventListener('click', () => {
+        expanded = true;
+        if (gridMore) gridMore.classList.add('hidden');
+        revealLazyBatch();
+        setupInfiniteScroll();
+      });
+    }
+
+    apply();
   }
 
   // ===== Photo gallery (per-car detail page) =====

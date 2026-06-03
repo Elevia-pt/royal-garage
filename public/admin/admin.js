@@ -167,13 +167,16 @@
       const photo = (c.photos && c.photos[0])
         ? `<img src="${esc(photoUrl(c.photos[0]))}" alt="">`
         : '<span class="no-photo">📷</span>';
-      const isSold = c.status === 'sold';
+      const status = c.status || 'available';
+      const isSold = status === 'sold';
+      const isReserved = status === 'reserved';
       return `
-        <article class="car-item ${c.featured ? 'featured' : ''} ${isSold ? 'sold' : ''}" data-id="${attrEsc(c.id)}">
+        <article class="car-item ${c.featured ? 'featured' : ''} ${isSold ? 'sold' : ''} ${isReserved ? 'reserved' : ''}" data-id="${attrEsc(c.id)}">
           <div class="car-thumb">
             ${photo}
             ${c.featured ? '<span class="badge-featured">★ DESTAQUE</span>' : ''}
             ${isSold ? '<span class="badge-sold">VENDIDO</span>' : ''}
+            ${isReserved ? '<span class="badge-reserved">RESERVADO</span>' : ''}
           </div>
           <div class="car-info">
             <h3>${esc(c.marca)} ${esc(c.modelo)}</h3>
@@ -182,7 +185,14 @@
           <div class="car-actions">
             <button class="btn-icon" data-action="edit">✏️ Editar</button>
             <button class="btn-icon featured ${c.featured ? 'is-on' : ''}" data-action="featured">${c.featured ? '★ Em destaque' : '☆ Definir destaque'}</button>
-            <button class="btn-icon" data-action="status">${isSold ? '🔄 Marcar disponível' : '✓ Marcar vendido'}</button>
+            <label class="status-label">
+              Estado
+              <select class="status-select" data-action="status">
+                <option value="available" ${status === 'available' ? 'selected' : ''}>Disponível</option>
+                <option value="reserved" ${status === 'reserved' ? 'selected' : ''}>Reservado</option>
+                <option value="sold" ${status === 'sold' ? 'selected' : ''}>Vendido</option>
+              </select>
+            </label>
             <button class="btn-icon delete" data-action="delete">🗑 Remover</button>
           </div>
         </article>`;
@@ -470,14 +480,6 @@
           await api('cars/featured', { method: 'POST', body: { id } });
           await loadCars();
           showNotice('✓ Destaque atualizado. O site público pode levar até 1 min a refletir.');
-        } else if (action === 'status') {
-          const next = car.status === 'sold' ? 'available' : 'sold';
-          const verb = next === 'sold' ? 'VENDIDO' : 'disponível';
-          if (!confirm(`Marcar "${car.marca} ${car.modelo}" como ${verb}?`)) return;
-          btn.disabled = true; btn.textContent = '…';
-          await api('cars/status', { method: 'POST', body: { id, status: next } });
-          await loadCars();
-          showNotice(`✓ Marcado como ${verb}. O site público pode levar até 1 min a refletir.`);
         } else if (action === 'delete') {
           if (!confirm(`Remover "${car.marca} ${car.modelo}" definitivamente?\n\nIsto não pode ser desfeito.`)) return;
           btn.disabled = true; btn.textContent = '…';
@@ -490,6 +492,37 @@
           showError('errBox', err.message || 'Erro desconhecido');
           await loadCars().catch(() => {});
         }
+      }
+    });
+
+    $('#carsList')?.addEventListener('change', async (e) => {
+      const sel = e.target.closest('select[data-action="status"]');
+      if (!sel) return;
+      const item = sel.closest('.car-item');
+      const id = item?.dataset.id;
+      const car = state.cars.find(c => c.id === id);
+      if (!car) return;
+      const newStatus = sel.value;
+      const current = car.status || 'available';
+      if (newStatus === current) return;
+      const labels = { available: 'Disponível', reserved: 'Reservado', sold: 'Vendido' };
+      if (!confirm(`Mudar "${car.marca} ${car.modelo}" para "${labels[newStatus]}"?`)) {
+        sel.value = current;
+        return;
+      }
+      sel.disabled = true;
+      try {
+        await api('cars/status', { method: 'POST', body: { id, status: newStatus } });
+        await loadCars();
+        showNotice(`✓ Estado alterado para ${labels[newStatus]}. O site público pode levar até 1 min a refletir.`);
+      } catch (err) {
+        sel.value = current;
+        if (state.view !== 'login') {
+          showError('errBox', err.message || 'Erro desconhecido');
+          await loadCars().catch(() => {});
+        }
+      } finally {
+        sel.disabled = false;
       }
     });
 

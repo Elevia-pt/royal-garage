@@ -2,7 +2,10 @@
 layout: base.njk
 permalink: /
 ---
-{% set featured = cars | selectattr("featured") | first %}
+{% set forSaleCars = cars | forSale %}
+{% set soldCars = cars | soldOnly %}
+{% set featured = forSaleCars | selectattr("featured") | first %}
+{% if not featured %}{% set featured = forSaleCars[0] %}{% endif %}
 {% if not featured %}{% set featured = cars[0] %}{% endif %}
 
 <main id="top">
@@ -10,10 +13,11 @@ permalink: /
   <section class="hero-featured">
     <div class="wrap">
       <span class="kick">{{ site.tagline }}</span>
-      <article class="featured-card{% if featured.status == 'sold' %} sold{% endif %}">
+      <article class="featured-card{% if featured.status == 'sold' %} sold{% endif %}{% if featured.status == 'reserved' %} reserved{% endif %}">
         <div class="featured-card-media">
           <img src="/assets/cars/{{ featured.photos[0] }}" alt="{{ featured.marca }} {{ featured.modelo }}">
           <span class="destaque-badge">Em destaque</span>
+          {% if featured.status == 'reserved' %}<span class="reserved-badge">Reservado</span>{% endif %}
           {% if featured.status == 'sold' %}<span class="sold-stamp lg">Vendido</span>{% endif %}
         </div>
         <div class="featured-card-info">
@@ -36,13 +40,47 @@ permalink: /
     </div>
   </section>
 
-  <div class="stats">
-    <div class="wrap stats-grid">
-      <div class="stat"><div class="num gold" data-count="{% yearsSince site.yearStarted %}">0</div><div class="lbl">Anos no mercado</div></div>
-      <div class="stat"><div class="num gold" data-count="{{ cars | length }}">0</div><div class="lbl">Viaturas em stock</div></div>
-      <div class="stat"><div class="num gold" data-count="100" data-suffix="%">0</div><div class="lbl">Inspecionadas</div></div>
+  {% if forSaleCars | length > 0 %}
+  <section class="car-marquee" aria-label="Stock disponível">
+    <div class="car-marquee-head">
+      <span class="kick">O que temos agora</span>
+      <h2>Stock em destaque</h2>
     </div>
-  </div>
+    <div class="car-marquee-viewport">
+      <div class="car-marquee-track">
+        {% for c in forSaleCars %}
+          <a class="mq-card" href="/viatura/{{ c.slug }}/">
+            <div class="mq-media">
+              <img src="/assets/cars/{{ c.photos[0] }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
+              {% if c.status == 'reserved' %}<span class="reserved-badge">Reservado</span>{% endif %}
+            </div>
+            <div class="mq-body">
+              <div class="mq-brand">{{ c.marca }}</div>
+              <div class="mq-model">{{ c.modelo }}</div>
+              <div class="mq-meta">{{ c.ano }} · {{ c.km | km }} · {{ c.comb }}</div>
+              <div class="mq-price">{{ c.preco | price }}</div>
+            </div>
+          </a>
+        {% endfor %}
+        {# Clone para loop seamless #}
+        {% for c in forSaleCars %}
+          <a class="mq-card" href="/viatura/{{ c.slug }}/" aria-hidden="true" tabindex="-1">
+            <div class="mq-media">
+              <img src="/assets/cars/{{ c.photos[0] }}" alt="" loading="lazy">
+              {% if c.status == 'reserved' %}<span class="reserved-badge">Reservado</span>{% endif %}
+            </div>
+            <div class="mq-body">
+              <div class="mq-brand">{{ c.marca }}</div>
+              <div class="mq-model">{{ c.modelo }}</div>
+              <div class="mq-meta">{{ c.ano }} · {{ c.km | km }} · {{ c.comb }}</div>
+              <div class="mq-price">{{ c.preco | price }}</div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
 
   <section id="viaturas">
     <div class="wrap">
@@ -122,15 +160,19 @@ permalink: /
           </div>
         </div>
         <div class="filter-actions">
-          <span id="filter-count" class="filter-count">{{ cars | length }} viaturas</span>
+          <span id="filter-count" class="filter-count">{{ forSaleCars | length }} viaturas</span>
           <button class="btn btn-out btn-small" id="filter-clear" type="button">Limpar filtros</button>
         </div>
       </div>
 
-      <div class="grid" id="grid">
-        {% for c in cars %}
+      <div class="grid" id="grid" data-initial="6">
+        {% for c in forSaleCars %}
           {% include "partials/car-card.njk" %}
         {% endfor %}
+      </div>
+
+      <div class="grid-more" id="grid-more">
+        <button class="btn btn-out" type="button" id="btn-show-all">Ver tudo</button>
       </div>
 
       <div class="empty-state" id="empty-state" hidden>
@@ -171,6 +213,46 @@ permalink: /
       </div>
     </div>
   </section>
+
+  {% if soldCars | length > 0 %}
+  <section class="car-marquee is-sold" aria-label="Vendidos recentemente">
+    <div class="car-marquee-head">
+      <span class="kick">Histórico</span>
+      <h2>Vendidos recentemente</h2>
+    </div>
+    <div class="car-marquee-viewport">
+      <div class="car-marquee-track">
+        {% for c in soldCars %}
+          <article class="mq-card is-sold">
+            <div class="mq-media">
+              <img src="/assets/cars/{{ c.photos[0] }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
+              <span class="price-sold">Vendido</span>
+            </div>
+            <div class="mq-body">
+              <div class="mq-brand">{{ c.marca }}</div>
+              <div class="mq-model">{{ c.modelo }}</div>
+              <div class="mq-meta">{{ c.comb }}</div>
+            </div>
+          </article>
+        {% endfor %}
+        {# Clone para loop seamless #}
+        {% for c in soldCars %}
+          <article class="mq-card is-sold" aria-hidden="true">
+            <div class="mq-media">
+              <img src="/assets/cars/{{ c.photos[0] }}" alt="" loading="lazy">
+              <span class="price-sold">Vendido</span>
+            </div>
+            <div class="mq-body">
+              <div class="mq-brand">{{ c.marca }}</div>
+              <div class="mq-model">{{ c.modelo }}</div>
+              <div class="mq-meta">{{ c.comb }}</div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
 
   <section id="contacto" class="cta-band">
     <div class="wrap reveal">
