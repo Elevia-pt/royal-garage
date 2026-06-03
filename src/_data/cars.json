@@ -36,7 +36,7 @@
       "car-1.jpg"
     ],
     "status": "available",
-    "featured": false,
+    "featured": true,
     "createdAt": "2026-05-01",
     "updatedAt": "2026-05-30"
   },
@@ -202,7 +202,7 @@
       "car-5.jpg"
     ],
     "status": "sold",
-    "featured": true,
+    "featured": false,
     "createdAt": "2026-05-05"
   },
   {
