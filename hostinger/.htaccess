@@ -1,0 +1,54 @@
+# Royal Garage — Apache/LiteSpeed config (Hostinger)
+
+RewriteEngine On
+
+# Forçar HTTPS
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# URLs limpas para API (sem .php no URL)
+RewriteRule ^api/cars/?$               api/cars.php           [L]
+RewriteRule ^api/cars/save/?$          api/cars/save.php      [L]
+RewriteRule ^api/cars/delete/?$        api/cars/delete.php    [L]
+RewriteRule ^api/cars/featured/?$      api/cars/featured.php  [L]
+RewriteRule ^api/cars/status/?$        api/cars/status.php    [L]
+RewriteRule ^api/upload/sign/?$        api/upload/sign.php    [L]
+
+# Admin SPA — qualquer subrota dentro de /admin/ devolve o index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^admin(/.*)?$ /admin/index.html [L]
+
+# Bloquear acesso direto ao ficheiro .env
+<Files ".env">
+  Require all denied
+</Files>
+
+# Bloquear acesso a _lib (libs PHP internas)
+RewriteRule ^api/_lib/ - [F,L]
+
+# Cache de assets estáticos (1 ano para imagens, 1 mês para CSS/JS)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png  "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType text/css   "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+# Compressão gzip
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml \
+    application/javascript application/json application/xml image/svg+xml
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

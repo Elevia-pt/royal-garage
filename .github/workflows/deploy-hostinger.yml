@@ -1,0 +1,61 @@
+name: Deploy to Hostinger
+
+# Corre em cada push para main + permite trigger manual no painel Actions.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site (Eleventy)
+        run: npm run build
+        env:
+          # admin/config.js precisa destas em build time
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Stage PHP backend + .htaccess para upload
+        run: |
+          cp -r hostinger/api _site/api
+          cp hostinger/.htaccess _site/.htaccess
+          # Sanity: lista o que vai subir
+          echo "=== Conteúdo de _site/ ==="
+          ls -la _site/
+          echo "=== API endpoints ==="
+          find _site/api -type f
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: ./_site/
+          server-dir: ${{ secrets.FTP_DIR }}
+          protocol: ftps
+          # Nunca apagar/sobrescrever o .env nem o histórico do site
+          exclude: |
+            **/.env
+            **/.env.*
+            **/.git*
+            **/.DS_Store
+            **/node_modules/**
