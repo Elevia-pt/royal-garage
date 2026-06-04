@@ -78,7 +78,7 @@
     "photos": [
       "car-2.jpg"
     ],
-    "status": "available",
+    "status": "reserved",
     "featured": false,
     "createdAt": "2026-05-02"
   },
