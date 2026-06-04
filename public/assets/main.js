@@ -232,13 +232,94 @@
   // ===== Photo gallery (per-car detail page) =====
   const mainPhoto = $('#mainPhoto');
   const thumbs = $$('.thumb');
-  if (mainPhoto && thumbs.length > 1) {
-    thumbs.forEach((t) =>
-      t.addEventListener('click', () => {
-        thumbs.forEach((x) => x.classList.remove('active'));
-        t.classList.add('active');
-        mainPhoto.src = t.dataset.src;
-      })
-    );
+  if (mainPhoto) {
+    if (thumbs.length > 1) {
+      thumbs.forEach((t) =>
+        t.addEventListener('click', () => {
+          thumbs.forEach((x) => x.classList.remove('active'));
+          t.classList.add('active');
+          mainPhoto.src = t.dataset.src;
+        })
+      );
+    }
+
+    // ===== Lightbox =====
+    const photos = thumbs.length
+      ? thumbs.map((t) => t.dataset.src)
+      : [mainPhoto.src];
+
+    const lb = document.createElement('div');
+    lb.className = 'lightbox';
+    lb.hidden = true;
+    lb.setAttribute('role', 'dialog');
+    lb.setAttribute('aria-label', 'Galeria de fotos');
+    lb.innerHTML =
+      '<button class="lb-close" type="button" aria-label="Fechar">×</button>' +
+      '<button class="lb-prev" type="button" aria-label="Anterior">‹</button>' +
+      '<button class="lb-next" type="button" aria-label="Seguinte">›</button>' +
+      '<div class="lb-stage"><img class="lb-img" alt=""></div>' +
+      '<div class="lb-counter">1 / ' + photos.length + '</div>';
+    document.body.appendChild(lb);
+
+    const lbImg = lb.querySelector('.lb-img');
+    const lbCounter = lb.querySelector('.lb-counter');
+    const lbPrev = lb.querySelector('.lb-prev');
+    const lbNext = lb.querySelector('.lb-next');
+    let lbIdx = 0;
+    let touchStartX = null;
+
+    if (photos.length === 1) {
+      lbPrev.style.display = 'none';
+      lbNext.style.display = 'none';
+      lbCounter.style.display = 'none';
+    }
+
+    function showLb() {
+      lbImg.src = photos[lbIdx];
+      lbCounter.textContent = (lbIdx + 1) + ' / ' + photos.length;
+    }
+    function openLb(idx) {
+      lbIdx = idx;
+      showLb();
+      lb.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLb() {
+      lb.hidden = true;
+      document.body.style.overflow = '';
+    }
+    function nextLb() { lbIdx = (lbIdx + 1) % photos.length; showLb(); }
+    function prevLb() { lbIdx = (lbIdx - 1 + photos.length) % photos.length; showLb(); }
+
+    mainPhoto.addEventListener('click', () => {
+      const activeThumb = thumbs.find((t) => t.classList.contains('active'));
+      const startIdx = activeThumb ? thumbs.indexOf(activeThumb) : 0;
+      openLb(startIdx >= 0 ? startIdx : 0);
+    });
+
+    lb.querySelector('.lb-close').addEventListener('click', closeLb);
+    lbPrev.addEventListener('click', prevLb);
+    lbNext.addEventListener('click', nextLb);
+    lb.addEventListener('click', (e) => {
+      if (e.target === lb || e.target.classList.contains('lb-stage')) closeLb();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') closeLb();
+      else if (e.key === 'ArrowRight') nextLb();
+      else if (e.key === 'ArrowLeft') prevLb();
+    });
+    // Swipe em mobile
+    lb.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    lb.addEventListener('touchend', (e) => {
+      if (touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50) {
+        if (dx < 0) nextLb(); else prevLb();
+      }
+      touchStartX = null;
+    });
   }
 })();
