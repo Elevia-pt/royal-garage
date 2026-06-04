@@ -149,7 +149,7 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .car-marquee.is-sold{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
 .car-marquee-head{text-align:center;margin-bottom:26px;padding:0 20px}
 .car-marquee-head .kick{display:inline-block}
-.car-marquee-head h2{font-family:var(--disp);font-size:clamp(1.6rem,3vw,2.2rem);margin-top:6px;text-transform:uppercase;letter-spacing:.02em}
+.car-marquee-head h2{font-family:var(--disp);font-size:clamp(1.6rem,3vw,2.2rem);text-transform:uppercase;letter-spacing:.02em;color:var(--gold)}
 .car-marquee-viewport{position:relative;overflow:hidden;mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent)}
 .car-marquee-track{display:flex;gap:18px;width:max-content;padding:6px 0;animation:marqueeScroll 55s linear infinite}
 .car-marquee:hover .car-marquee-track{animation-play-state:paused}
