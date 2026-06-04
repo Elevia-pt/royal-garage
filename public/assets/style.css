@@ -138,7 +138,7 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .featured-card.sold .featured-card-media img{filter:grayscale(.6) brightness(.7)}
 
 /* Reserved badge */
-.reserved-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,#4b5563,#6b7280);color:#fff;font-family:var(--disp);font-size:.98rem;font-weight:700;letter-spacing:.16em;padding:9px 18px;border-radius:6px;text-transform:uppercase;z-index:2;box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.1)}
+.reserved-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,#4b5563,#6b7280);color:#fff;font-family:var(--sans);font-size:1.15rem;font-weight:600;letter-spacing:.12em;padding:11px 22px;border-radius:7px;text-transform:uppercase;z-index:2;box-shadow:0 8px 22px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.1)}
 .car.reserved .car-media::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.12);pointer-events:none}
 
 /* Sold price overlay (banner final) */
