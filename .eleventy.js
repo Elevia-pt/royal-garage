@@ -51,6 +51,14 @@ module.exports = function (eleventyConfig) {
     (cars || []).filter((c) => c.status === "sold")
   );
 
+  // Lista única de valores de um campo, alfabetizada — para popular dropdowns
+  // de filtros só com o que existe em stock (ex: brandsInStock).
+  eleventyConfig.addFilter("uniqueField", (cars, field) => {
+    return [...new Set((cars || []).map((c) => c[field]).filter(Boolean))].sort(
+      (a, b) => String(a).localeCompare(String(b), "pt")
+    );
+  });
+
   // Current year (e.g., for footer)
   eleventyConfig.addShortcode("currentYear", () => new Date().getFullYear());
 

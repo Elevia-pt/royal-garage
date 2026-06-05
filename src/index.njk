@@ -94,7 +94,7 @@ permalink: /
             <label for="f-marca">Marca</label>
             <select id="f-marca">
               <option value="">Todas</option>
-              {% for marca in brands %}<option>{{ marca }}</option>{% endfor %}
+              {% for marca in forSaleCars | uniqueField("marca") %}<option>{{ marca }}</option>{% endfor %}
             </select>
           </div>
           <div class="filter-field">
