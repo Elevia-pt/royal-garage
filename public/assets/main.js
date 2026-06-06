@@ -243,28 +243,6 @@
       );
     }
 
-    // ===== Setas prev/next dos thumbs (quando > 6 fotos) =====
-    const stripPrev = $('.thumbs-arrow.prev');
-    const stripNext = $('.thumbs-arrow.next');
-    const thumbsScroll = $('.car-detail-thumbs');
-    if (thumbs.length > 6 && stripPrev && stripNext && thumbsScroll) {
-      const step = () => Math.max(220, thumbsScroll.clientWidth * 0.7);
-      stripPrev.addEventListener('click', () =>
-        thumbsScroll.scrollBy({ left: -step(), behavior: 'smooth' })
-      );
-      stripNext.addEventListener('click', () =>
-        thumbsScroll.scrollBy({ left: step(), behavior: 'smooth' })
-      );
-      const updateArrows = () => {
-        const sl = thumbsScroll.scrollLeft;
-        const max = thumbsScroll.scrollWidth - thumbsScroll.clientWidth;
-        stripPrev.classList.toggle('disabled', sl <= 2);
-        stripNext.classList.toggle('disabled', sl >= max - 2);
-      };
-      thumbsScroll.addEventListener('scroll', updateArrows, { passive: true });
-      window.addEventListener('resize', updateArrows);
-      updateArrows();
-    }
 
     // ===== Lightbox =====
     const photos = thumbs.length
