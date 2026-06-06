@@ -259,11 +259,23 @@ footer ul a:hover{color:var(--gold)}
 .car-detail-main{position:relative;aspect-ratio:16/10;overflow:hidden;background:#000;border:1px solid var(--line);border-radius:14px}
 .car-detail-main img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;transition:.25s}
 .car-detail-main img:hover{transform:scale(1.015)}
-.car-detail-thumbs{display:flex;gap:10px;flex-wrap:wrap}
-.thumb{width:96px;height:64px;border:2px solid var(--line);border-radius:8px;overflow:hidden;padding:0;transition:.2s;background:#000}
+/* Galeria de thumbs — strip horizontal com setas (sem wrap, scroll manual) */
+.thumbs-strip{display:flex;align-items:center;gap:8px;position:relative}
+.thumbs-viewport{flex:1;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
+.thumbs-viewport::-webkit-scrollbar{display:none}
+.car-detail-thumbs{display:flex;gap:10px;padding:2px}
+.thumb{flex:0 0 96px;width:96px;height:64px;border:2px solid var(--line);border-radius:8px;overflow:hidden;padding:0;transition:.2s;background:#000;cursor:pointer}
 .thumb img{width:100%;height:100%;object-fit:cover}
-.thumb.active{border-color:var(--gold)}
+.thumb.active{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
 .thumb:hover{border-color:var(--gold)}
+.thumbs-arrow{flex:0 0 36px;height:64px;background:rgba(240,192,64,.08);border:1px solid var(--line);color:var(--gold);font-size:1.8rem;line-height:1;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 0 4px;transition:.2s;font-family:inherit;font-weight:300}
+.thumbs-arrow:hover{background:rgba(240,192,64,.18);border-color:var(--gold)}
+.thumbs-arrow:disabled,.thumbs-arrow.disabled{opacity:.3;cursor:default;pointer-events:none}
+.thumbs-strip.has-arrows .thumbs-arrow{display:flex}
+@media(max-width:520px){
+  .thumb{flex:0 0 72px;width:72px;height:50px}
+  .thumbs-arrow{flex:0 0 30px;height:50px;font-size:1.5rem}
+}
 
 .car-detail-summary{display:flex;flex-direction:column;gap:18px;position:sticky;top:90px}
 .car-detail-summary h1{font-size:clamp(2rem,4vw,3rem);font-weight:400}
