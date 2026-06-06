@@ -270,7 +270,7 @@
   }
 
   function renderPhotos() {
-    $('#photoCount').textContent = `${state.photos.length}/15`;
+    $('#photoCount').textContent = `${state.photos.length}/45`;
     $('#photosGrid').innerHTML = state.photos.map((url, i) => `
       <div class="photo-item" data-i="${i}">
         <img src="${esc(photoUrl(url))}" alt="">
@@ -318,8 +318,8 @@
   }
 
   async function uploadFile(file) {
-    if (state.photos.length >= 15) {
-      alert('Máximo de 15 fotos por carro.');
+    if (state.photos.length >= 45) {
+      alert('Máximo de 45 fotos por carro.');
       return;
     }
     if (!file.type.startsWith('image/')) return;
