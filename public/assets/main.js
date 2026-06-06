@@ -243,6 +243,32 @@
       );
     }
 
+    // ===== Setas dos thumbs (só visíveis se houver overflow) =====
+    const thumbsScroll = $('.car-detail-thumbs');
+    const thumbsNav = $('.thumbs-nav');
+    const navPrev = $('.thumbs-arrow.prev');
+    const navNext = $('.thumbs-arrow.next');
+    if (thumbs.length > 1 && thumbsScroll && thumbsNav && navPrev && navNext) {
+      const step = () => Math.max(220, thumbsScroll.clientWidth * 0.7);
+      navPrev.addEventListener('click', () =>
+        thumbsScroll.scrollBy({ left: -step(), behavior: 'smooth' })
+      );
+      navNext.addEventListener('click', () =>
+        thumbsScroll.scrollBy({ left: step(), behavior: 'smooth' })
+      );
+      const refresh = () => {
+        const hasOverflow = thumbsScroll.scrollWidth > thumbsScroll.clientWidth + 1;
+        thumbsNav.hidden = !hasOverflow;
+        if (!hasOverflow) return;
+        const sl = thumbsScroll.scrollLeft;
+        const max = thumbsScroll.scrollWidth - thumbsScroll.clientWidth;
+        navPrev.classList.toggle('disabled', sl <= 2);
+        navNext.classList.toggle('disabled', sl >= max - 2);
+      };
+      thumbsScroll.addEventListener('scroll', refresh, { passive: true });
+      window.addEventListener('resize', refresh);
+      refresh();
+    }
 
     // ===== Lightbox =====
     const photos = thumbs.length
