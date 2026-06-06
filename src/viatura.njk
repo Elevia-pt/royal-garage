@@ -27,16 +27,16 @@ eleventyComputed:
             {% if car.status == 'sold' %}<span class="sold-stamp lg">Vendido</span>{% endif %}
           </div>
           {% if car.photos | length > 1 %}
-          <div class="car-detail-thumbs">
-            {% for photo in car.photos %}
-            <button class="thumb{% if loop.first %} active{% endif %}" type="button" data-src="/assets/cars/{{ photo }}">
-              <img src="/assets/cars/{{ photo }}" alt="">
-            </button>
-            {% endfor %}
-          </div>
-          <div class="thumbs-nav" hidden>
-            <button type="button" class="thumbs-arrow prev" aria-label="Fotos anteriores">‹</button>
-            <button type="button" class="thumbs-arrow next" aria-label="Fotos seguintes">›</button>
+          <div class="thumbs-row">
+            <button type="button" class="thumbs-arrow prev" aria-label="Fotos anteriores" hidden>‹</button>
+            <div class="car-detail-thumbs">
+              {% for photo in car.photos %}
+              <button class="thumb{% if loop.first %} active{% endif %}" type="button" data-src="/assets/cars/{{ photo }}">
+                <img src="/assets/cars/{{ photo }}" alt="">
+              </button>
+              {% endfor %}
+            </div>
+            <button type="button" class="thumbs-arrow next" aria-label="Fotos seguintes" hidden>›</button>
           </div>
           {% endif %}
         </div>
