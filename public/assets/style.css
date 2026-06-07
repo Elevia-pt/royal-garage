@@ -263,7 +263,7 @@ footer ul a:hover{color:var(--gold)}
 .thumbs-row{display:flex;align-items:center;gap:8px}
 .car-detail-thumbs{display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;flex:1;min-width:0}
 .car-detail-thumbs::-webkit-scrollbar{display:none}
-.thumb{flex:0 0 96px;width:96px;height:64px;border:2px solid var(--line);border-radius:8px;overflow:hidden;padding:0;transition:.2s;background:#000;cursor:pointer}
+.thumb{flex:0 0 calc((100% - 40px) / 6);aspect-ratio:3 / 2;border:2px solid var(--line);border-radius:8px;overflow:hidden;padding:0;transition:.2s;background:#000;cursor:pointer}
 .thumb img{width:100%;height:100%;object-fit:cover}
 .thumb.active{border-color:var(--gold)}
 .thumb:hover{border-color:var(--gold)}
