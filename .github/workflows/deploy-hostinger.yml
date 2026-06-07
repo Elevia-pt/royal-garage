@@ -45,22 +45,18 @@ jobs:
       - name: Deploy via FTP (lftp, resiliente a intermitência)
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          lftp -c "
-            set ftp:ssl-allow true;
-            set ssl:verify-certificate false;
-            set ftp:passive-mode true;
-            set net:max-retries 5;
-            set net:timeout 15;
-            set net:reconnect-interval-base 5;
-            set mirror:parallel-transfer-count 3;
-            open -u \"$FTP_USER\",\"$FTP_PASS\" \"$FTP_HOST\";
-            mirror -R --verbose --ignore-time \
-              --exclude-glob .env \
-              --exclude-glob .env.* \
-              --exclude-glob .git* \
-              --exclude-glob node_modules/ \
-              ./_site/ \"$FTP_DIR\";
-          "
+          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTPEOF
+          set ftp:ssl-allow true
+          set ssl:verify-certificate false
+          set ftp:passive-mode true
+          set net:max-retries 5
+          set net:timeout 15
+          set net:reconnect-interval-base 5
+          set mirror:parallel-transfer-count 3
+          set cmd:fail-exit true
+          mirror -R --verbose --ignore-time --exclude-glob .env --exclude-glob .env.* --exclude-glob .git* --exclude-glob node_modules/ ./_site/ "$FTP_DIR"
+          bye
+          LFTPEOF
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
