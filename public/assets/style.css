@@ -151,9 +151,10 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .car-marquee-head .kick{display:inline-block}
 .car-marquee-head h2{font-family:var(--disp);font-size:clamp(1.6rem,3vw,2.2rem);text-transform:uppercase;letter-spacing:.02em;color:var(--gold)}
 .car-marquee-viewport{position:relative;overflow:hidden;mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent)}
-.car-marquee-track{display:flex;gap:18px;width:max-content;padding:6px 0;animation:marqueeScroll 55s linear infinite}
-.car-marquee:hover .car-marquee-track{animation-play-state:paused}
-.mq-card{flex:0 0 280px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;color:var(--txt);text-decoration:none;transition:.3s;display:flex;flex-direction:column}
+.car-marquee-track{display:flex;width:max-content;padding:6px 0;animation:marqueeScroll 55s linear infinite;will-change:transform}
+/* Pausa no hover só em dispositivos com rato — em touch o :hover fica preso e travava o carrossel */
+@media (hover:hover){.car-marquee:hover .car-marquee-track{animation-play-state:paused}}
+.mq-card{flex:0 0 280px;margin-right:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;color:var(--txt);text-decoration:none;transition:.3s;display:flex;flex-direction:column}
 .mq-card:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 16px 40px rgba(0,0,0,.45)}
 .mq-card .mq-media{position:relative;aspect-ratio:16/10;overflow:hidden;background:#000}
 .mq-card .mq-media img{width:100%;height:100%;object-fit:cover}
@@ -164,7 +165,7 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .mq-card .mq-meta{font-size:.74rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
 .mq-card.is-sold .mq-media img{filter:grayscale(.85) brightness(.65)}
 .mq-card.is-sold .mq-sold{display:inline-block;background:rgba(220,38,38,.18);border:1px solid rgba(220,38,38,.55);color:#fca5a5;font-family:var(--disp);font-size:.82rem;letter-spacing:.2em;padding:5px 10px;border-radius:6px;text-transform:uppercase}
-@keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(calc(-50% - 9px))}}
+@keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
 /* Lazy grid + Ver tudo */
 .car.lazy{display:none}
