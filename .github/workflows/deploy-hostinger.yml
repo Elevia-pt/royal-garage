@@ -54,13 +54,12 @@ jobs:
           set net:reconnect-interval-base 5
           set mirror:parallel-transfer-count 3
           set cmd:fail-exit true
-          open -u "$FTP_USER","$FTP_PASS" "$FTP_HOST"
           mirror -R --verbose --size-only --exclude-glob .env --exclude-glob .env.* --exclude-glob .git* --exclude-glob node_modules/ ./_site/ "$FTP_DIR"
           bye
           LFTPEOF
           for attempt in 1 2 3; do
             echo "=== Deploy tentativa $attempt ==="
-            if lftp -f /tmp/deploy.lftp; then echo "✓ Deploy OK"; exit 0; fi
+            if lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -f /tmp/deploy.lftp; then echo "✓ Deploy OK"; exit 0; fi
             echo "Tentativa $attempt falhou; novo retry em 25s…"; sleep 25
           done
           echo "✗ Deploy falhou após 3 tentativas"; exit 1
