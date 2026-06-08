@@ -12,13 +12,15 @@
         "desc": "teste",
         "photos": [
             "https:\/\/res.cloudinary.com\/elevia\/image\/upload\/v1780935322\/royal-garage\/cars\/xkxbeoflbxour8nlz7cb.jpg",
-            "https:\/\/res.cloudinary.com\/elevia\/image\/upload\/v1780935327\/royal-garage\/cars\/rqiefysn4q6mhwesbmcj.jpg"
+            "https:\/\/res.cloudinary.com\/elevia\/image\/upload\/v1780935327\/royal-garage\/cars\/rqiefysn4q6mhwesbmcj.jpg",
+            "https:\/\/res.cloudinary.com\/elevia\/image\/upload\/v1780938746\/royal-garage\/cars\/pp4msluabwkceqluzmr1.jpg"
         ],
         "id": "alfa-romeo-teste-6a26eaa686155",
         "slug": "alfa-romeo-teste",
         "status": "available",
         "featured": false,
-        "createdAt": "2026-06-08"
+        "createdAt": "2026-06-08",
+        "updatedAt": "2026-06-08"
     },
     {
         "id": "merc-a180d-2018",
