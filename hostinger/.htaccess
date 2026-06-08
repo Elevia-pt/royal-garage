@@ -28,16 +28,18 @@ RewriteRule ^admin(/.*)?$ /admin/index.html [L]
 # Bloquear acesso a _lib (libs PHP internas)
 RewriteRule ^api/_lib/ - [F,L]
 
-# Cache de assets estáticos (1 ano para imagens, 1 mês para CSS/JS)
-<IfModule mod_expires.c>
-  ExpiresActive On
-  ExpiresByType image/jpeg "access plus 1 year"
-  ExpiresByType image/png  "access plus 1 year"
-  ExpiresByType image/webp "access plus 1 year"
-  ExpiresByType image/svg+xml "access plus 1 year"
-  ExpiresByType text/css   "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
-  ExpiresByType font/woff2 "access plus 1 year"
+# Política de cache:
+#  - HTML nunca é cacheado de forma persistente: revalida sempre para apanhar
+#    as referências novas (?v=…) dos assets a cada deploy.
+#  - CSS/JS/imagens/fontes são versionados via ?v= no URL, logo podem ser
+#    imutáveis e cacheados 1 ano (o ?v= faz o cache-bust quando mudam).
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(css|js|jpe?g|png|webp|gif|svg|ico|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
 </IfModule>
 
 # Compressão gzip

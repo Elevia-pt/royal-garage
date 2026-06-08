@@ -44,7 +44,7 @@ jobs:
           echo "=== API endpoints ==="
           find _site/api -type f
 
-      - name: Deploy via FTP (lftp, retry + upload completo p/ garantir cache-bust)
+      - name: Deploy via FTP (lftp, retry + 2 passagens: bulk incremental + HTML sempre)
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
           cat > /tmp/deploy.lftp <<LFTPEOF
@@ -56,7 +56,12 @@ jobs:
           set net:reconnect-interval-base 5
           set mirror:parallel-transfer-count 3
           set cmd:fail-exit true
-          mirror -R --verbose --exclude-glob .env --exclude-glob .env.* --exclude-glob .git* --exclude-glob node_modules/ ./_site/ "$FTP_DIR"
+          # Passagem 1 — bulk incremental por tamanho (fiavel em FTP flaky): so sobe
+          # ficheiros cujo tamanho mudou (CSS/JS/imagens/php). Exclui HTML.
+          mirror -R --verbose --ignore-time --exclude-glob '*.html' --exclude-glob .env --exclude-glob .env.* --exclude-glob .git* --exclude-glob node_modules/ ./_site/ "$FTP_DIR"
+          # Passagem 2 — HTML sempre (poucos ficheiros, pequenos): garante que o
+          # ?v= novo chega ao servidor mesmo que o tamanho do HTML nao mude.
+          mirror -R --verbose --include-glob '*.html' ./_site/ "$FTP_DIR"
           bye
           LFTPEOF
           for attempt in 1 2 3; do
