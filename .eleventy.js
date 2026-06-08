@@ -49,6 +49,13 @@ module.exports = function (eleventyConfig) {
     return "/assets/cars/" + photo;
   });
 
+  // Torna um caminho absoluto (para og:image / canonical / JSON-LD).
+  // Se ja for URL absoluta (Cloudinary), devolve tal e qual.
+  eleventyConfig.addFilter("absUrl", (path, base = "") => {
+    if (!path) return base;
+    return /^https?:\/\//i.test(path) ? path : base + path;
+  });
+
   // WhatsApp link with a prefilled message
   eleventyConfig.addFilter("waLink", (text, phoneIntl = "351924296020") => {
     return `https://wa.me/${phoneIntl}?text=${encodeURIComponent(text || "")}`;

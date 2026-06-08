@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title or (site.name + " — " + site.tagline) }}</title>
 <meta name="description" content="{{ description or site.description }}">
+<link rel="canonical" href="{{ site.siteUrl }}{{ page.url }}">
 <link rel="icon" href="/assets/logo.jpg" type="image/jpeg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,10 +14,34 @@
 
 <meta property="og:title" content="{{ ogTitle or title or site.name }}">
 <meta property="og:description" content="{{ ogDescription or description or site.description }}">
-<meta property="og:image" content="{{ ogImage or '/assets/logo.jpg' }}">
-<meta property="og:type" content="website">
+<meta property="og:image" content="{{ (ogImage or '/assets/logo.jpg') | absUrl(site.siteUrl) }}">
+<meta property="og:url" content="{{ site.siteUrl }}{{ page.url }}">
+<meta property="og:type" content="{{ ogType or 'website' }}">
+<meta property="og:site_name" content="{{ site.name }}">
 <meta property="og:locale" content="pt_PT">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ ogTitle or title or site.name }}">
+<meta name="twitter:description" content="{{ ogDescription or description or site.description }}">
+<meta name="twitter:image" content="{{ (ogImage or '/assets/logo.jpg') | absUrl(site.siteUrl) }}">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AutoDealer",
+  "name": "{{ site.name }}",
+  "url": "{{ site.siteUrl }}",
+  "image": "{{ site.siteUrl }}/assets/logo.jpg",
+  "telephone": "{{ site.phoneIntl }}",
+  "description": "{{ site.description }}",
+  "priceRange": "€€",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "{{ site.address.street }}",
+    "addressLocality": "{{ site.address.area }}",
+    "addressRegion": "{{ site.address.municipality }}",
+    "addressCountry": "PT"
+  }
+}
+</script>
 </head>
 <body>
 

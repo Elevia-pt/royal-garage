@@ -34,7 +34,7 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .brand{display:flex;align-items:center;gap:11px}
 .brand img{width:64px;border-radius:10px;box-shadow:0 0 16px rgba(240,192,64,.45),0 0 0 1px rgba(240,192,64,.4);transition:.35s}
 header.scrolled .brand img{width:52px}
-.brand b{font-family:'Cinzel',serif;font-weight:700;font-size:1.5rem;letter-spacing:.05em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand b{font-family:'Cinzel',serif;font-weight:700;font-size:1.5rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .menu{display:flex;align-items:center;gap:30px}
 .menu a{font-size:.86rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt);transition:.2s}
 .menu a:hover{color:var(--gold)}
@@ -148,7 +148,7 @@ header.scrolled .brand img{width:52px}
 /* Marquee carrossel — topo (stock à venda) e fim (vendidos) */
 .car-marquee{position:relative;overflow:hidden;background:var(--bg2);padding:42px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .car-marquee.is-sold{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
-.car-marquee-head{text-align:center;margin-bottom:26px;padding:0 20px}
+.car-marquee-head{text-align:center;margin-bottom:26px;padding:0 20px;position:relative;z-index:4}
 .car-marquee-head .kick{display:inline-block}
 .car-marquee-head h2{font-family:var(--disp);font-size:clamp(1.6rem,3vw,2.2rem);text-transform:uppercase;letter-spacing:.02em;color:var(--gold)}
 /* Carrossel: SCROLL NATIVO horizontal. Sem animacao CSS 'transform' — esta

@@ -1,6 +1,8 @@
 ---
 layout: base.njk
 permalink: /
+title: "Royal Garage — Stand de Automóveis em Famões, Odivelas"
+description: "Compre o seu próximo carro usado em Famões, Odivelas. Viaturas com financiamento, garantia e retoma. Ligue 924 296 020."
 ---
 {% set forSaleCars = cars | forSale %}
 {% set soldCars = cars | soldOnly %}
@@ -9,6 +11,7 @@ permalink: /
 {% if not featured %}{% set featured = cars[0] %}{% endif %}
 
 <main id="top">
+  {% if featured %}
   {% set waCarMsg = "Olá " + site.name + ", tenho interesse no " + featured.marca + " " + featured.modelo + ". Ainda está disponível?" %}
   <section class="hero-featured">
     <div class="wrap">
@@ -39,6 +42,7 @@ permalink: /
       </article>
     </div>
   </section>
+  {% endif %}
 
   {% if forSaleCars | length > 0 %}
   <section class="car-marquee" aria-label="Stock disponível">

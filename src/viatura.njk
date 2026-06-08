@@ -10,6 +10,7 @@ eleventyComputed:
   description: "{{ car.marca }} {{ car.modelo }} de {{ car.ano }}, {{ car.km }} km, {{ car.comb }}. Disponível no {{ site.name }} em {{ site.address.area }}."
   ogTitle: "{{ car.marca }} {{ car.modelo }} — {{ car.preco }} €"
   ogImage: "{{ car.photos[0] | carImg(1200) }}"
+  ogType: "product"
 ---
 
 <main id="top" class="car-page">
@@ -112,4 +113,24 @@ eleventyComputed:
     </div>
   </section>
   {% endif %}
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Car",
+    "name": "{{ car.marca }} {{ car.modelo }}",
+    "brand": { "@type": "Brand", "name": "{{ car.marca }}" },
+    "vehicleModelDate": "{{ car.ano }}",
+    "fuelType": "{{ car.comb }}",
+    "mileageFromOdometer": { "@type": "QuantitativeValue", "value": {{ car.km or 0 }}, "unitCode": "KMT" },
+    "image": "{{ car.photos[0] | carImg(1200) | absUrl(site.siteUrl) }}",
+    "url": "{{ site.siteUrl }}/viatura/{{ car.slug }}/",
+    "offers": {
+      "@type": "Offer",
+      "price": "{{ car.preco or 0 }}",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/{% if car.status == 'sold' %}SoldOut{% else %}InStock{% endif %}"
+    }
+  }
+  </script>
 </main>

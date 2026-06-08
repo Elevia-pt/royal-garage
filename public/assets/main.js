@@ -17,12 +17,19 @@
   const menu = $('#menu');
   const burger = $('#burger');
   if (menu && burger) {
-    burger.onclick = () => menu.classList.toggle('open');
-    $$('a', menu).forEach((a) => (a.onclick = () => menu.classList.remove('open')));
+    const setMenu = (open) => {
+      menu.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    burger.onclick = () => setMenu(!menu.classList.contains('open'));
+    $$('a', menu).forEach((a) => (a.onclick = () => setMenu(false)));
     document.addEventListener('click', (e) => {
       if (menu.classList.contains('open') && !menu.contains(e.target) && !burger.contains(e.target)) {
-        menu.classList.remove('open');
+        setMenu(false);
       }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.classList.contains('open')) setMenu(false);
     });
   }
 
@@ -89,7 +96,8 @@
     vp.addEventListener('pointerup', resumeSoon);
 
     const tick = () => {
-      if (!paused && copyW > 0) {
+      // so anima se o track de facto transborda (evita "tremer" com 1 carro)
+      if (!paused && copyW > 0 && track.scrollWidth > vp.clientWidth + 1) {
         pos += SPEED;
         if (pos >= copyW) pos -= copyW;  // wrap seamless (copia 2 == copia 1)
         vp.scrollLeft = pos;
