@@ -54,7 +54,7 @@ jobs:
           set net:reconnect-interval-base 5
           set mirror:parallel-transfer-count 3
           set cmd:fail-exit true
-          mirror -R --verbose --size-only --exclude-glob .env --exclude-glob .env.* --exclude-glob .git* --exclude-glob node_modules/ ./_site/ "$FTP_DIR"
+          mirror -R --verbose --ignore-time --exclude-glob .env --exclude-glob .env.* --exclude-glob .git* --exclude-glob node_modules/ ./_site/ "$FTP_DIR"
           bye
           LFTPEOF
           for attempt in 1 2 3; do
