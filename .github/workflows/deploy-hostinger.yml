@@ -51,20 +51,20 @@ jobs:
           set ftp:ssl-allow true
           set ssl:verify-certificate false
           set ftp:passive-mode true
-          set net:max-retries 3
-          set net:timeout 15
+          set net:max-retries 5
+          set net:timeout 20
           set net:reconnect-interval-base 5
           set mirror:parallel-transfer-count 3
           set cmd:fail-exit true
           mirror -R --verbose --ignore-time --exclude-glob .env --exclude-glob .env.* --exclude-glob .git* --exclude-glob node_modules/ ./_site/ "$FTP_DIR"
           bye
           LFTPEOF
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5; do
             echo "=== Deploy tentativa $attempt ==="
             if lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" < /tmp/deploy.lftp; then echo "✓ Deploy OK"; exit 0; fi
-            echo "Tentativa $attempt falhou; novo retry em 25s…"; sleep 25
+            echo "Tentativa $attempt falhou; novo retry em 30s…"; sleep 30
           done
-          echo "✗ Deploy falhou após 3 tentativas"; exit 1
+          echo "✗ Deploy falhou após 5 tentativas"; exit 1
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
