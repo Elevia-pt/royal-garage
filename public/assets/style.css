@@ -32,10 +32,10 @@ header{position:fixed;top:0;left:0;right:0;z-index:70;padding:18px 0;transition:
 header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line);padding:11px 0}
 .nav{display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:11px}
-.brand img{width:40px;border-radius:10px;box-shadow:0 0 16px rgba(240,192,64,.45),0 0 0 1px rgba(240,192,64,.4)}
-.brand b{font-family:var(--disp);font-size:1.4rem;letter-spacing:.06em}
+.brand img{width:46px;border-radius:10px;box-shadow:0 0 16px rgba(240,192,64,.45),0 0 0 1px rgba(240,192,64,.4)}
+.brand b{font-family:var(--disp);font-size:1.78rem;letter-spacing:.07em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .menu{display:flex;align-items:center;gap:30px}
-.menu a{font-size:.86rem;font-weight:700;letter-spacing:.05em;color:var(--txt);transition:.2s}
+.menu a{font-size:.86rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt);transition:.2s}
 .menu a:hover{color:var(--gold)}
 .menu .login-link{font-size:.74rem;font-weight:600;color:var(--muted);opacity:.7;letter-spacing:.12em;text-transform:uppercase}
 .menu .login-link:hover{color:var(--gold);opacity:1}
@@ -167,6 +167,30 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .mq-card.is-sold .mq-sold{display:inline-block;background:rgba(220,38,38,.18);border:1px solid rgba(220,38,38,.55);color:#fca5a5;font-family:var(--disp);font-size:.82rem;letter-spacing:.2em;padding:5px 10px;border-radius:6px;text-transform:uppercase}
 @keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
+/* Vendidos — carrossel mais compacto e menos comprido */
+.car-marquee.is-sold{padding:34px 0}
+.car-marquee.is-sold .car-marquee-viewport{max-width:1080px;margin-left:auto;margin-right:auto}
+.car-marquee.is-sold .mq-card{flex-basis:218px;margin-right:14px}
+.car-marquee.is-sold .mq-card .mq-media{aspect-ratio:16/11}
+.car-marquee.is-sold .mq-card .mq-body{padding:11px 14px}
+
+/* Reviews / avaliações Google */
+.reviews{background:var(--bg)}
+.reviews-rating{display:inline-flex;align-items:center;gap:9px;margin-top:14px;color:var(--txt);font-weight:600;font-size:.95rem}
+.reviews-rating .stars{color:var(--gold);letter-spacing:.12em;font-size:1.05rem}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px;margin-top:46px}
+.review-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:13px;transition:.3s}
+.review-card:hover{transform:translateY(-5px);border-color:rgba(240,192,64,.4);box-shadow:0 18px 44px rgba(0,0,0,.45)}
+.review-head{display:flex;align-items:center;gap:12px}
+.review-avatar{width:44px;height:44px;border-radius:50%;background:var(--grad);color:#1a1304;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-size:1.3rem;flex-shrink:0}
+.review-head b{display:block;font-size:.98rem;color:var(--txt)}
+.review-src{font-size:.76rem;color:var(--muted)}
+.review-stars{color:var(--gold);letter-spacing:.14em;font-size:1.05rem}
+.review-card p{color:#d7d5cf;font-size:.94rem;line-height:1.7;font-style:italic;flex:1}
+.review-more{color:var(--gold);font-weight:600;font-size:.84rem}
+.review-more:hover{text-decoration:underline}
+.reviews-cta{text-align:center;margin-top:38px}
+
 /* Lazy grid + Ver tudo */
 .car.lazy{display:none}
 .grid-more{display:flex;justify-content:center;margin-top:38px}
@@ -196,9 +220,9 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 }
 
 /* Floating WhatsApp button */
-.fab-wa{position:fixed;right:18px;bottom:96px;width:56px;height:56px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(0,0,0,.5),0 0 0 4px rgba(37,211,102,.18);z-index:55;transition:.25s;text-decoration:none}
-.fab-wa:hover{transform:scale(1.06);box-shadow:0 14px 36px rgba(0,0,0,.55),0 0 0 6px rgba(37,211,102,.28)}
-.fab-wa svg{width:30px;height:30px;color:#fff;display:block}
+.fab-wa{position:fixed;right:18px;bottom:96px;display:inline-flex;align-items:center;gap:9px;height:54px;padding:0 20px 0 15px;border-radius:30px;background:#25d366;box-shadow:0 12px 30px rgba(0,0,0,.5),0 0 0 4px rgba(37,211,102,.18);z-index:55;transition:.25s;text-decoration:none;color:#fff;font-weight:700;font-size:.92rem;letter-spacing:.02em;white-space:nowrap}
+.fab-wa:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 14px 36px rgba(0,0,0,.55),0 0 0 6px rgba(37,211,102,.28)}
+.fab-wa svg{width:26px;height:26px;color:#fff;display:block;flex-shrink:0}
 @media(min-width:901px){.fab-wa{bottom:28px;right:28px}}
 
 /* Why */
@@ -220,7 +244,7 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .loc-row h4{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:4px}
 .loc-row p{color:var(--muted);font-size:.96rem}
 .map{border:1px solid var(--line);border-radius:14px;overflow:hidden;min-height:330px}
-.map iframe{width:100%;height:100%;min-height:330px;border:0;filter:grayscale(.9) invert(.92) contrast(.88)}
+.map iframe{width:100%;height:100%;min-height:330px;border:0}
 
 /* CTA */
 .cta-band{text-align:center;background:linear-gradient(180deg,var(--bg),var(--bg2))}

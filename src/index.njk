@@ -43,7 +43,7 @@ permalink: /
   {% if forSaleCars | length > 0 %}
   <section class="car-marquee" aria-label="Stock disponível">
     <div class="car-marquee-head">
-      <h2>Stock em destaque</h2>
+      <h2>Seleção de Viaturas Disponíveis</h2>
     </div>
     <div class="car-marquee-viewport">
       <div class="car-marquee-track">
@@ -84,11 +84,10 @@ permalink: /
   <section id="viaturas">
     <div class="wrap">
       <div class="head reveal">
-        <div><span class="kick">O nosso stock</span><h2 class="disp">Viaturas disponíveis</h2></div>
-        <button class="btn btn-out" id="filter-toggle" type="button">Filtrar <span class="arr">▾</span></button>
+        <div><span class="kick">Pesquisa</span><h2 class="disp">Encontre o seu próximo carro</h2></div>
       </div>
 
-      <div class="filters-panel reveal" id="filters" hidden>
+      <div class="filters-panel reveal" id="filters">
         <div class="filter-grid">
           <div class="filter-field">
             <label for="f-marca">Marca</label>
@@ -171,7 +170,7 @@ permalink: /
       </div>
 
       <div class="grid-more" id="grid-more">
-        <button class="btn btn-out" type="button" id="btn-show-all">Ver tudo</button>
+        <button class="btn btn-out" type="button" id="btn-show-all">Ver todas as viaturas</button>
       </div>
 
       <div class="empty-state" id="empty-state" hidden>
@@ -180,44 +179,11 @@ permalink: /
     </div>
   </section>
 
-  <section id="porque" class="why">
-    <div class="wrap">
-      <div class="head reveal" style="justify-content:center;text-align:center;flex-direction:column">
-        <span class="kick">Porquê o {{ site.name }}</span>
-        <h2 class="disp">Comprar com confiança</h2>
-      </div>
-      <div class="why-grid">
-        <div class="feat reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div><h4>Viaturas inspecionadas</h4><p>Cada carro verificado e preparado antes de chegar a si.</p></div>
-        <div class="feat reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div><h4>Financiamento</h4><p>Soluções à medida tratadas no próprio stand.</p></div>
-        <div class="feat reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></div><h4>Garantia incluída</h4><p>Conduza tranquilo com garantia em cada negócio.</p></div>
-        <div class="feat reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></div><h4>Retoma do usado</h4><p>Damos o melhor valor pelo seu carro atual.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="localizacao">
-    <div class="wrap">
-      <div class="head reveal" style="flex-direction:column;align-items:flex-start"><span class="kick">Onde estamos</span><h2 class="disp">Passa pelo stand</h2></div>
-      <div class="loc-grid">
-        <div class="loc-info reveal">
-          <div class="loc-row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><h4>Morada</h4><p>{{ site.address.street }}, {{ site.address.area }} ({{ site.address.municipality }})</p></div></div>
-          <div class="loc-row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><h4>Horário</h4><p>{{ site.hours.weekdays }}<br>{{ site.hours.saturday }}</p></div></div>
-          <div class="loc-row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></div><div><h4>Telefone</h4><p>{{ site.phone }}</p></div></div>
-          <div class="cta" style="display:flex;gap:12px;flex-wrap:wrap">
-            <a class="btn btn-gold" href="https://www.google.com/maps/dir/?api=1&destination={{ site.address.googleMapsQuery | urlencode }}" target="_blank" rel="noopener" style="color:#000">Ver direções <span class="arr">→</span></a>
-            <a class="btn btn-out" href="tel:{{ site.phoneIntl }}">Ligar</a>
-          </div>
-        </div>
-        <div class="map reveal"><iframe loading="lazy" src="https://www.google.com/maps?q={{ site.address.googleMapsQuery | urlencode }}&output=embed" title="Mapa {{ site.name }}"></iframe></div>
-      </div>
-    </div>
-  </section>
-
   {% if soldCars | length > 0 %}
-  <section class="car-marquee is-sold" aria-label="Vendidos recentemente">
+  <section class="car-marquee is-sold" aria-label="Últimas viaturas vendidas">
     <div class="car-marquee-head">
       <span class="kick">Histórico</span>
-      <h2>Vendidos recentemente</h2>
+      <h2>Últimas Viaturas Vendidas</h2>
     </div>
     <div class="car-marquee-viewport">
       <div class="car-marquee-track">
@@ -252,6 +218,73 @@ permalink: /
     </div>
   </section>
   {% endif %}
+
+  {% set reviewsUrl = "https://www.google.com/maps/search/Royal+Garage+Fam%C3%B5es" %}
+  <section id="reviews" class="reviews">
+    <div class="wrap">
+      <div class="head reveal" style="flex-direction:column;align-items:center;text-align:center">
+        <span class="kick">Avaliações</span>
+        <h2 class="disp">O que os clientes dizem de nós</h2>
+        <a class="reviews-rating" href="{{ reviewsUrl }}" target="_blank" rel="noopener"><span class="stars">★★★★★</span> 5,0 no Google</a>
+      </div>
+      <div class="reviews-grid">
+        <article class="review-card reveal">
+          <div class="review-head">
+            <div class="review-avatar">N</div>
+            <div><b>Nelson Barbosa</b><span class="review-src">Avaliação no Google</span></div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+          <p>“Um obrigado ao Sr. Luís e seu Sócio pela simpatia e gentileza como realizaram um sonho meu. Adquiri hoje um veículo no Stand Royal Garage e só tenho a agradecer…”</p>
+          <a class="review-more" href="{{ reviewsUrl }}" target="_blank" rel="noopener">Ver no Google →</a>
+        </article>
+        <article class="review-card reveal">
+          <div class="review-head">
+            <div class="review-avatar">J</div>
+            <div><b>João Manuel Vicente</b><span class="review-src">Avaliação no Google</span></div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+          <p>“Vendedor 5*, comprei carro sem ver (pelas fotos), a 260 km de distância, com todo o processo à distância, na base da confiança, e foi-me entregue hoje em casa…”</p>
+          <a class="review-more" href="{{ reviewsUrl }}" target="_blank" rel="noopener">Ver no Google →</a>
+        </article>
+      </div>
+      <div class="reviews-cta">
+        <a class="btn btn-out" href="{{ reviewsUrl }}" target="_blank" rel="noopener">Ver todas as avaliações no Google</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="porque" class="why">
+    <div class="wrap">
+      <div class="head reveal" style="justify-content:center;text-align:center;flex-direction:column">
+        <span class="kick">Porquê o {{ site.name }}</span>
+        <h2 class="disp">Comprar com confiança</h2>
+      </div>
+      <div class="why-grid">
+        <div class="feat reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div><h4>Viaturas inspecionadas</h4><p>Cada carro verificado e preparado antes de chegar a si.</p></div>
+        <div class="feat reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div><h4>Financiamento</h4><p>Soluções à medida tratadas no próprio stand.</p></div>
+        <div class="feat reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></div><h4>Garantia incluída</h4><p>Conduza tranquilo com garantia em cada negócio.</p></div>
+        <div class="feat reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></div><h4>Retoma do usado</h4><p>Damos o melhor valor pelo seu carro atual.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="localizacao">
+    <div class="wrap">
+      <div class="head reveal" style="flex-direction:column;align-items:flex-start"><span class="kick">Onde estamos</span><h2 class="disp">Contactos</h2></div>
+      <div class="loc-grid">
+        <div class="loc-info reveal">
+          <div class="loc-row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><h4>Morada</h4><p>{{ site.address.street }}, {{ site.address.area }} ({{ site.address.municipality }})</p></div></div>
+          <div class="loc-row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><h4>Horário</h4><p>{{ site.hours.weekdays }}</p></div></div>
+          <div class="loc-row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></div><div><h4>Telefone</h4><p>{{ site.phone }}</p></div></div>
+          <div class="cta" style="display:flex;gap:12px;flex-wrap:wrap">
+            <a class="btn btn-gold" href="https://www.google.com/maps/dir/?api=1&destination={{ site.address.googleMapsQuery | urlencode }}" target="_blank" rel="noopener" style="color:#000">Ver direções <span class="arr">→</span></a>
+            <a class="btn btn-out" href="tel:{{ site.phoneIntl }}">Ligar</a>
+          </div>
+        </div>
+        <div class="map reveal"><iframe loading="lazy" src="https://www.google.com/maps?q={{ site.address.googleMapsQuery | urlencode }}&output=embed" title="Mapa {{ site.name }}"></iframe></div>
+      </div>
+    </div>
+  </section>
 
   <section id="contacto" class="cta-band">
     <div class="wrap reveal">
