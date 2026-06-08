@@ -151,8 +151,14 @@ header.scrolled .brand img{width:52px}
 .car-marquee-head{text-align:center;margin-bottom:26px;padding:0 20px}
 .car-marquee-head .kick{display:inline-block}
 .car-marquee-head h2{font-family:var(--disp);font-size:clamp(1.6rem,3vw,2.2rem);text-transform:uppercase;letter-spacing:.02em;color:var(--gold)}
-.car-marquee-viewport{position:relative;overflow:hidden;mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent)}
-.car-marquee-track{display:flex;width:max-content;padding:6px 0;animation:marqueeScroll 55s linear infinite;will-change:transform}
+/* Fade das pontas via gradientes overlay (NÃO mask-image — esta dava ecrã
+   preto no Safari iOS ao sair/voltar ao viewport). rgba(19,19,24,0) em vez
+   de 'transparent' porque o Safari desvanece 'transparent' para preto. */
+.car-marquee-viewport{position:relative;overflow:hidden}
+.car-marquee-viewport::before,.car-marquee-viewport::after{content:"";position:absolute;top:0;bottom:0;width:7%;z-index:2;pointer-events:none}
+.car-marquee-viewport::before{left:0;background:linear-gradient(to right,var(--bg2),rgba(19,19,24,0))}
+.car-marquee-viewport::after{right:0;background:linear-gradient(to left,var(--bg2),rgba(19,19,24,0))}
+.car-marquee-track{display:flex;width:max-content;padding:6px 0;animation:marqueeScroll 55s linear infinite}
 /* Pausa no hover só em dispositivos com rato — em touch o :hover fica preso e travava o carrossel */
 @media (hover:hover){.car-marquee:hover .car-marquee-track{animation-play-state:paused}}
 .mq-card{flex:0 0 280px;margin-right:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;color:var(--txt);text-decoration:none;transition:.3s;display:flex;flex-direction:column}
