@@ -18,7 +18,7 @@ description: "Compre o seu próximo carro usado em Famões, Odivelas. Viaturas c
       <span class="kick">{{ site.tagline }}</span>
       <article class="featured-card{% if featured.status == 'sold' %} sold{% endif %}{% if featured.status == 'reserved' %} reserved{% endif %}">
         <div class="featured-card-media">
-          <img src="{{ featured.photos[0] | carImg(1000) }}" alt="{{ featured.marca }} {{ featured.modelo }}">
+          <img src="{{ featured.photos[0] | carImg(1500) }}" alt="{{ featured.marca }} {{ featured.modelo }}">
           <span class="destaque-badge">Em destaque</span>
           {% if featured.status == 'reserved' %}<span class="reserved-badge">Reservado</span>{% endif %}
           {% if featured.status == 'sold' %}<span class="sold-stamp lg">Vendido</span>{% endif %}
@@ -54,7 +54,7 @@ description: "Compre o seu próximo carro usado em Famões, Odivelas. Viaturas c
         {% for c in forSaleCars %}
           <a class="mq-card" href="/viatura/{{ c.slug }}/">
             <div class="mq-media">
-              <img src="{{ c.photos[0] | carImg(600) }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
+              <img src="{{ c.photos[0] | carImg(900) }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
               {% if c.status == 'reserved' %}<span class="reserved-badge">Reservado</span>{% endif %}
             </div>
             <div class="mq-body">
@@ -69,7 +69,7 @@ description: "Compre o seu próximo carro usado em Famões, Odivelas. Viaturas c
         {% for c in forSaleCars %}
           <a class="mq-card" href="/viatura/{{ c.slug }}/" aria-hidden="true" tabindex="-1">
             <div class="mq-media">
-              <img src="{{ c.photos[0] | carImg(600) }}" alt="" loading="lazy">
+              <img src="{{ c.photos[0] | carImg(900) }}" alt="" loading="lazy">
               {% if c.status == 'reserved' %}<span class="reserved-badge">Reservado</span>{% endif %}
             </div>
             <div class="mq-body">
@@ -194,7 +194,7 @@ description: "Compre o seu próximo carro usado em Famões, Odivelas. Viaturas c
         {% for c in soldCars %}
           <article class="mq-card is-sold">
             <div class="mq-media">
-              <img src="{{ c.photos[0] | carImg(600) }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
+              <img src="{{ c.photos[0] | carImg(900) }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
               <span class="price-sold">Vendido</span>
             </div>
             <div class="mq-body">
@@ -208,7 +208,7 @@ description: "Compre o seu próximo carro usado em Famões, Odivelas. Viaturas c
         {% for c in soldCars %}
           <article class="mq-card is-sold" aria-hidden="true">
             <div class="mq-media">
-              <img src="{{ c.photos[0] | carImg(600) }}" alt="" loading="lazy">
+              <img src="{{ c.photos[0] | carImg(900) }}" alt="" loading="lazy">
               <span class="price-sold">Vendido</span>
             </div>
             <div class="mq-body">

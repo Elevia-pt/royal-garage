@@ -339,6 +339,18 @@
         $('#cropCancel').onclick = null;
       };
       img.onload = () => {
+        // Aviso de baixa resolução — a causa nº1 de fotos "moles" no site
+        // (ex.: imagens reenviadas por WhatsApp vêm a ~960px).
+        const hint = modal.querySelector('.crop-hint');
+        if (hint) {
+          if (img.naturalWidth < 1280) {
+            hint.textContent = `⚠️ Foto de baixa resolução (${img.naturalWidth}px de largura) — vai aparecer pouco nítida no site. Usa a foto original do telemóvel, não uma reenviada por WhatsApp.`;
+            hint.style.color = '#fca5a5';
+          } else {
+            hint.textContent = 'Ajusta o enquadramento — é assim que a foto vai aparecer no site (16:10). Arrasta/zoom na imagem.';
+            hint.style.color = '';
+          }
+        }
         cropper = new Cropper(img, {
           aspectRatio: 16 / 10,
           viewMode: 1,
@@ -352,10 +364,10 @@
       $('#cropConfirm').onclick = () => {
         if (!cropper) return;
         const canvas = cropper.getCroppedCanvas({
-          maxWidth: 1920, maxHeight: 1200, imageSmoothingQuality: 'high', fillColor: '#000',
+          maxWidth: 2400, maxHeight: 1500, imageSmoothingEnabled: true, imageSmoothingQuality: 'high', fillColor: '#fff',
         });
         cleanup();
-        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85);
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.92);
       };
       $('#cropCancel').onclick = () => { cleanup(); resolve(null); };
     });
