@@ -31,6 +31,24 @@ module.exports = function (eleventyConfig) {
     return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " km";
   });
 
+  // URL de foto de carro:
+  //  - URL Cloudinary (upload do admin) -> usa direto + injeta transformacao
+  //    on-the-fly: f_auto (WebP/AVIF), q_auto (qualidade auto), c_limit/w_N
+  //    (reduz so se for maior, sem upscale nem distorcao). Poupa banda sem
+  //    perda visivel.
+  //  - outro URL absoluto -> usa como esta.
+  //  - nome de ficheiro local (demos) -> /assets/cars/<ficheiro>.
+  eleventyConfig.addFilter("carImg", (photo, width = 800) => {
+    if (!photo) return "/assets/logo.jpg";
+    if (/^https?:\/\//i.test(photo)) {
+      return photo.replace(
+        /\/image\/upload\//,
+        `/image/upload/f_auto,q_auto,c_limit,w_${width}/`
+      );
+    }
+    return "/assets/cars/" + photo;
+  });
+
   // WhatsApp link with a prefilled message
   eleventyConfig.addFilter("waLink", (text, phoneIntl = "351924296020") => {
     return `https://wa.me/${phoneIntl}?text=${encodeURIComponent(text || "")}`;

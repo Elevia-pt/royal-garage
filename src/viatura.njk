@@ -9,7 +9,7 @@ eleventyComputed:
   title: "{{ car.marca }} {{ car.modelo }} — {{ site.name }}"
   description: "{{ car.marca }} {{ car.modelo }} de {{ car.ano }}, {{ car.km }} km, {{ car.comb }}. Disponível no {{ site.name }} em {{ site.address.area }}."
   ogTitle: "{{ car.marca }} {{ car.modelo }} — {{ car.preco }} €"
-  ogImage: "/assets/cars/{{ car.photos[0] }}"
+  ogImage: "{{ car.photos[0] | carImg(1200) }}"
 ---
 
 <main id="top" class="car-page">
@@ -22,7 +22,7 @@ eleventyComputed:
       <div class="car-detail-hero">
         <div class="car-detail-photos">
           <div class="car-detail-main">
-            <img id="mainPhoto" src="/assets/cars/{{ car.photos[0] }}" alt="{{ car.marca }} {{ car.modelo }}">
+            <img id="mainPhoto" src="{{ car.photos[0] | carImg(1400) }}" alt="{{ car.marca }} {{ car.modelo }}">
             <span class="marca-badge lg">{{ car.marca }}</span>
             {% if car.status == 'sold' %}<span class="sold-stamp lg">Vendido</span>{% endif %}
           </div>
@@ -31,8 +31,8 @@ eleventyComputed:
             <button type="button" class="thumbs-arrow prev" aria-label="Fotos anteriores" hidden>‹</button>
             <div class="car-detail-thumbs">
               {% for photo in car.photos %}
-              <button class="thumb{% if loop.first %} active{% endif %}" type="button" data-src="/assets/cars/{{ photo }}">
-                <img src="/assets/cars/{{ photo }}" alt="">
+              <button class="thumb{% if loop.first %} active{% endif %}" type="button" data-src="{{ photo | carImg(1400) }}">
+                <img src="{{ photo | carImg(300) }}" alt="">
               </button>
               {% endfor %}
             </div>

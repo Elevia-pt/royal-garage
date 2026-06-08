@@ -10,7 +10,7 @@
   data-status="{{ c.status }}">
   <a href="/viatura/{{ c.slug }}/" class="car-link">
     <div class="car-media">
-      <img src="/assets/cars/{{ c.photos[0] }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
+      <img src="{{ c.photos[0] | carImg(700) }}" alt="{{ c.marca }} {{ c.modelo }}" loading="lazy">
       <span class="marca-badge">{{ c.marca }}</span>
       <span class="price-badge">{{ c.preco | price }}</span>
       {% if c.status == 'reserved' %}<span class="reserved-badge">Reservado</span>{% endif %}
