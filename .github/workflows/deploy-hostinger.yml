@@ -59,7 +59,7 @@ jobs:
           LFTPEOF
           for attempt in 1 2 3; do
             echo "=== Deploy tentativa $attempt ==="
-            if lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -f /tmp/deploy.lftp; then echo "✓ Deploy OK"; exit 0; fi
+            if lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" < /tmp/deploy.lftp; then echo "✓ Deploy OK"; exit 0; fi
             echo "Tentativa $attempt falhou; novo retry em 25s…"; sleep 25
           done
           echo "✗ Deploy falhou após 3 tentativas"; exit 1
