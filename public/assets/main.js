@@ -61,6 +61,49 @@
   );
   $$('[data-count]').forEach((el) => cio.observe(el));
 
+  // ===== Carrossel auto-scroll (scroll NATIVO + rAF via scrollLeft) =====
+  // Sem animacao CSS 'transform' de proposito: essa dava ecra preto no Safari
+  // iOS ao sair/voltar ao viewport. scrollLeft nao tem esse bug e permite swipe.
+  $$('.car-marquee').forEach((section) => {
+    const vp = $('.car-marquee-viewport', section);
+    const track = $('.car-marquee-track', section);
+    if (!vp || !track) return;
+    let copyW = track.scrollWidth / 2;   // o track tem 2 copias identicas
+    let pos = 0, paused = false, rafId = null, resumeT = null;
+    const SPEED = 0.5;                    // px/frame (~30px/s, igual ao anterior)
+
+    const recalc = () => { copyW = track.scrollWidth / 2; };
+    addEventListener('resize', recalc, { passive: true });
+    addEventListener('load', recalc);
+
+    const pause = () => { paused = true; clearTimeout(resumeT); };
+    const resumeSoon = () => {
+      clearTimeout(resumeT);
+      resumeT = setTimeout(() => { pos = vp.scrollLeft; paused = false; }, 1500);
+    };
+    vp.addEventListener('mouseenter', pause);
+    vp.addEventListener('mouseleave', () => { pos = vp.scrollLeft; paused = false; });
+    vp.addEventListener('touchstart', pause, { passive: true });
+    vp.addEventListener('touchend', resumeSoon, { passive: true });
+    vp.addEventListener('pointerdown', pause);
+    vp.addEventListener('pointerup', resumeSoon);
+
+    const tick = () => {
+      if (!paused && copyW > 0) {
+        pos += SPEED;
+        if (pos >= copyW) pos -= copyW;  // wrap seamless (copia 2 == copia 1)
+        vp.scrollLeft = pos;
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    const start = () => { if (rafId == null) { pos = vp.scrollLeft; rafId = requestAnimationFrame(tick); } };
+    const stop = () => { if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; } };
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => { e.isIntersecting ? start() : stop(); }, { threshold: 0 }).observe(section);
+    } else { start(); }
+  });
+
   // ===== Filters + lazy grid (homepage) =====
   const grid = $('#grid');
   if (grid && $('#filters')) {
