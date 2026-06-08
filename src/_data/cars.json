@@ -120,7 +120,7 @@
         "photos": [
             "car-3.jpg"
         ],
-        "status": "sold",
+        "status": "available",
         "featured": false,
         "createdAt": "2026-05-03"
     },
