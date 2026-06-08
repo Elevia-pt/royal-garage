@@ -201,7 +201,7 @@
         "photos": [
             "car-5.jpg"
         ],
-        "status": "sold",
+        "status": "available",
         "featured": false,
         "createdAt": "2026-05-05"
     },
