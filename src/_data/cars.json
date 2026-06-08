@@ -1,5 +1,26 @@
 [
     {
+        "marca": "Alfa Romeo",
+        "modelo": "teste",
+        "versao": "teste",
+        "ano": 2026,
+        "mes": "Janeiro",
+        "km": 232323,
+        "comb": "Diesel",
+        "caixa": "Manual",
+        "preco": 232323,
+        "desc": "teste",
+        "photos": [
+            "https:\/\/res.cloudinary.com\/elevia\/image\/upload\/v1780935322\/royal-garage\/cars\/xkxbeoflbxour8nlz7cb.jpg",
+            "https:\/\/res.cloudinary.com\/elevia\/image\/upload\/v1780935327\/royal-garage\/cars\/rqiefysn4q6mhwesbmcj.jpg"
+        ],
+        "id": "alfa-romeo-teste-6a26eaa686155",
+        "slug": "alfa-romeo-teste",
+        "status": "available",
+        "featured": false,
+        "createdAt": "2026-06-08"
+    },
+    {
         "id": "merc-a180d-2018",
         "slug": "mercedes-benz-a-180-d-7g-dct-progressive",
         "marca": "Mercedes-Benz",
