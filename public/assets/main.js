@@ -193,8 +193,8 @@
           else c.classList.remove('lazy');
         });
         const extra = Math.max(0, visible.length - INITIAL);
-        if (gridMore) gridMore.classList.toggle('hidden', extra === 0);
-        if (btnShowAll && extra > 0) btnShowAll.textContent = `Ver tudo (+${extra})`;
+        if (gridMore) gridMore.classList.remove('hidden');
+        if (btnShowAll) btnShowAll.textContent = extra > 0 ? `Ver tudo (+${extra})` : 'Ver todas as viaturas';
         teardownSentinel();
       }
     }
@@ -219,6 +219,8 @@
 
     if (btnShowAll) {
       btnShowAll.addEventListener('click', () => {
+        const hasLazy = cards.some(c => c.classList.contains('lazy') && c.style.display !== 'none');
+        if (!hasLazy) return; // nada para revelar — botao fica visivel, sem efeito
         expanded = true;
         if (gridMore) gridMore.classList.add('hidden');
         revealLazyBatch();
