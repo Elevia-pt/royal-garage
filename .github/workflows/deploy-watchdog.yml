@@ -1,0 +1,99 @@
+name: Watchdog — Verificar & Corrigir Deploy
+
+# Corre a cada 20 minutos.
+# Compara o SHA do último commit no main com o SHA incorporado no site live
+# (via ?v=<sha> nos assets). Se desatualizado e sem deploy em curso → dispara redeploy.
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'
+  workflow_dispatch:        # permite correr manualmente no painel Actions
+
+permissions:
+  actions: write            # necessário para disparar workflow_dispatch via API
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter SHA mais recente do main
+        id: sha
+        run: |
+          SHA=$(curl -sf \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/main" \
+            | grep -m1 '"sha"' | grep -oE '[a-f0-9]{40}')
+          if [ -z "$SHA" ]; then
+            echo "Erro ao obter SHA do GitHub" && exit 1
+          fi
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+          echo "SHA esperado: ${SHA:0:7}..."
+
+      - name: Verificar site live
+        id: check
+        run: |
+          SHA="${{ steps.sha.outputs.sha }}"
+          echo "A verificar https://royalgarage.pt/ ..."
+
+          # -L segue redirects; headers forçam bypass de caches intermédios
+          HTTP_STATUS=$(curl -so /tmp/live.html -w "%{http_code}" \
+            -H "Cache-Control: no-cache, no-store, must-revalidate" \
+            -H "Pragma: no-cache" \
+            "https://royalgarage.pt/" || echo "000")
+
+          if [ "$HTTP_STATUS" = "000" ]; then
+            echo "sync=unreachable" >> $GITHUB_OUTPUT
+            echo "⚠️ Site inacessível (timeout/DNS) — watchdog não faz nada"
+            exit 0
+          fi
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "sync=error" >> $GITHUB_OUTPUT
+            echo "⚠️ Site retornou HTTP $HTTP_STATUS — pode ser temporário"
+            exit 0
+          fi
+
+          if grep -qF "v=$SHA" /tmp/live.html; then
+            echo "sync=ok" >> $GITHUB_OUTPUT
+            echo "✓ Site sincronizado com SHA ${SHA:0:7}"
+          else
+            LIVE_V=$(grep -oE 'v=[a-f0-9]{7,40}' /tmp/live.html | head -1 || echo "desconhecido")
+            echo "sync=stale" >> $GITHUB_OUTPUT
+            echo "⚠️ Site desatualizado — live=$LIVE_V | esperado=v=${SHA:0:7}..."
+          fi
+
+      - name: Verificar se deploy já está em curso
+        if: steps.check.outputs.sync == 'stale'
+        id: running
+        run: |
+          COUNT=$(curl -sf \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-hostinger.yml/runs?status=in_progress&per_page=1" \
+            | grep -oE '"total_count":[[:space:]]*[0-9]+' | grep -oE '[0-9]+' || echo "0")
+          echo "running=${COUNT:-0}" >> $GITHUB_OUTPUT
+          echo "Deploys em curso: ${COUNT:-0}"
+
+      - name: Triggar redeploy automático
+        if: steps.check.outputs.sync == 'stale' && steps.running.outputs.running == '0'
+        run: |
+          echo "Site desatualizado e sem deploy em curso → a triggar redeploy automático..."
+          HTTP=$(curl -sw "%{http_code}" -o /dev/null \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-hostinger.yml/dispatches" \
+            -d '{"ref":"main"}')
+          if [ "$HTTP" = "204" ]; then
+            echo "✓ Redeploy disparado com sucesso (HTTP 204)"
+          else
+            echo "✗ Falha ao disparar redeploy (HTTP $HTTP)" && exit 1
+          fi
+
+      - name: Aguardar — deploy já em curso
+        if: steps.check.outputs.sync == 'stale' && steps.running.outputs.running != '0'
+        run: |
+          echo "Deploy já em curso — o watchdog aguarda a próxima verificação (20 min)"
