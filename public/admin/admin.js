@@ -274,7 +274,7 @@
     $('#photosGrid').innerHTML = state.photos.map((url, i) => `
       <div class="photo-item" data-i="${i}">
         <img src="${esc(photoUrl(url))}" alt="">
-        ${i === 0 ? '<span class="cover">CAPA</span>' : ''}
+        ${i === 0 ? '<span class="cover">CAPA</span>' : `<button type="button" class="photo-cover" data-i="${i}" title="Definir como capa">★ Capa</button>`}
         <button type="button" class="photo-remove" data-i="${i}" title="Remover">×</button>
       </div>`).join('');
   }
@@ -317,29 +317,58 @@
     return (bytes / 1024 / 1024).toFixed(1) + ' MB';
   }
 
-  async function uploadFile(file) {
-    if (state.photos.length >= 45) {
-      alert('Máximo de 45 fotos por carro.');
-      return;
-    }
-    if (!file.type.startsWith('image/')) return;
-    const status = $('#uploadStatus');
-    const skipCompress = file.type === 'image/gif' || file.type === 'image/svg+xml';
-    let payload = file;
-    let payloadName = file.name;
-    try {
-      if (!skipCompress) {
-        status.textContent = `A comprimir ${file.name} (${fmtKB(file.size)})…`;
-        const blob = await compressImage(file, 1920, 1280, 0.82);
-        payload = blob;
-        payloadName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
-        status.textContent = `A enviar ${payloadName} (${fmtKB(file.size)} → ${fmtKB(blob.size)})…`;
-      } else {
-        status.textContent = `A enviar ${file.name} (${fmtKB(file.size)})…`;
+  // Abre o modal de crop (Cropper.js) e devolve um Blob JPEG ja recortado +
+  // redimensionado (16:10, como o site mostra). null se o utilizador cancelar.
+  // Fallback: se o Cropper nao carregar (CDN em baixo), comprime sem recorte.
+  function cropImage(file) {
+    return new Promise((resolve) => {
+      if (typeof Cropper === 'undefined') {
+        compressImage(file, 1920, 1280, 0.85).then(resolve).catch(() => resolve(file));
+        return;
       }
+      const modal = $('#cropModal');
+      const img = $('#cropImg');
+      const url = URL.createObjectURL(file);
+      let cropper = null;
+      const cleanup = () => {
+        if (cropper) { cropper.destroy(); cropper = null; }
+        URL.revokeObjectURL(url);
+        modal.classList.add('hidden');
+        img.removeAttribute('src');
+        $('#cropConfirm').onclick = null;
+        $('#cropCancel').onclick = null;
+      };
+      img.onload = () => {
+        cropper = new Cropper(img, {
+          aspectRatio: 16 / 10,
+          viewMode: 1,
+          autoCropArea: 1,
+          background: false,
+          dragMode: 'move',
+        });
+      };
+      img.src = url;
+      modal.classList.remove('hidden');
+      $('#cropConfirm').onclick = () => {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({
+          maxWidth: 1920, maxHeight: 1200, imageSmoothingQuality: 'high', fillColor: '#000',
+        });
+        cleanup();
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85);
+      };
+      $('#cropCancel').onclick = () => { cleanup(); resolve(null); };
+    });
+  }
+
+  // Faz upload de um Blob/File ja preparado para o Cloudinary. Devolve true/false.
+  async function uploadBlob(blob, name) {
+    const status = $('#uploadStatus');
+    try {
+      status.textContent = `A enviar ${name} (${fmtKB(blob.size)})…`;
       const sign = await api('upload/sign');
       const fd = new FormData();
-      fd.append('file', payload, payloadName);
+      fd.append('file', blob, name);
       fd.append('api_key', sign.apiKey);
       fd.append('timestamp', sign.timestamp);
       fd.append('signature', sign.signature);
@@ -349,10 +378,38 @@
       if (json.error) throw new Error(json.error.message || 'Falha no upload');
       state.photos.push(json.secure_url);
       renderPhotos();
-      status.textContent = `✓ ${payloadName} enviado.`;
-      setTimeout(() => { if (status.textContent.startsWith('✓')) status.textContent = ''; }, 2500);
+      return true;
     } catch (e) {
       status.textContent = '❌ Erro: ' + e.message;
+      return false;
+    }
+  }
+
+  // Processa os ficheiros escolhidos: crop (modal, um a um) -> upload, com resumo no fim.
+  async function handleFiles(files) {
+    const status = $('#uploadStatus');
+    let ok = 0;
+    const failed = [];
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) continue;
+      if (state.photos.length >= 45) { alert('Máximo de 45 fotos por carro.'); break; }
+      let blob, name;
+      if (file.type === 'image/gif' || file.type === 'image/svg+xml') {
+        blob = file; name = file.name; // crop nao se aplica a estes formatos
+      } else {
+        const cropped = await cropImage(file);
+        if (!cropped) continue; // utilizador cancelou esta foto
+        blob = cropped;
+        name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+      }
+      const success = await uploadBlob(blob, name);
+      if (success) ok++; else failed.push(name);
+    }
+    if (failed.length) {
+      status.textContent = `⚠️ ${ok} enviada(s), ${failed.length} falhou/falharam: ${failed.join(', ')}`;
+    } else if (ok) {
+      status.textContent = `✓ ${ok} foto(s) enviada(s).`;
+      setTimeout(() => { if (status.textContent.startsWith('✓')) status.textContent = ''; }, 2500);
     }
   }
 
@@ -533,6 +590,12 @@
         showError('formErr', 'Marca e modelo são obrigatórios.');
         return;
       }
+      if (!payload.photos || !payload.photos.length) {
+        if (!confirm('Esta viatura não tem fotos. Guardar mesmo assim?')) return;
+      }
+      if (!payload.preco) {
+        if (!confirm('Não definiste preço. Guardar sem preço?')) return;
+      }
       const saveBtn = $('#btnSave');
       saveBtn.disabled = true;
       saveBtn.textContent = 'A guardar…';
@@ -555,7 +618,7 @@
     if (dz && inp) {
       dz.addEventListener('click', () => inp.click());
       inp.addEventListener('change', async (e) => {
-        for (const f of Array.from(e.target.files)) await uploadFile(f);
+        await handleFiles(Array.from(e.target.files));
         e.target.value = '';
       });
       dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('drag'); });
@@ -563,11 +626,19 @@
       dz.addEventListener('drop', async (e) => {
         e.preventDefault();
         dz.classList.remove('drag');
-        for (const f of Array.from(e.dataTransfer.files)) await uploadFile(f);
+        await handleFiles(Array.from(e.dataTransfer.files));
       });
     }
 
     $('#photosGrid')?.addEventListener('click', (e) => {
+      const coverBtn = e.target.closest('.photo-cover');
+      if (coverBtn) {
+        const i = +coverBtn.dataset.i;
+        const [u] = state.photos.splice(i, 1);
+        state.photos.unshift(u); // passa a ser a capa (primeira)
+        renderPhotos();
+        return;
+      }
       const btn = e.target.closest('.photo-remove');
       if (!btn) return;
       const i = +btn.dataset.i;

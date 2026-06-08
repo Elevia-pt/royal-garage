@@ -122,6 +122,17 @@ button,input,select,textarea{font:inherit;color:inherit}
 .photo-remove{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.85);color:#fff;border:1px solid rgba(255,255,255,.3);cursor:pointer;font-size:1.1rem;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
 .photo-remove:hover{background:#dc2626;border-color:#dc2626}
 .upload-status{color:#9b9aa4;font-size:.82rem;margin-top:10px;min-height:1.2em}
+.photo-cover{position:absolute;left:6px;bottom:6px;background:rgba(10,10,12,.82);color:#f0c040;border:1px solid rgba(240,192,64,.45);font-size:.62rem;font-weight:700;letter-spacing:.06em;padding:4px 7px;border-radius:5px;cursor:pointer;font-family:inherit}
+.photo-cover:hover{background:#f0c040;color:#000;border-color:#f0c040}
+
+/* Crop modal (Cropper.js) */
+.crop-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px}
+.crop-modal.hidden{display:none}
+.crop-dialog{background:#17171d;border:1px solid rgba(240,192,64,.25);border-radius:14px;padding:18px;max-width:780px;width:100%;display:flex;flex-direction:column;gap:14px}
+.crop-hint{color:#9b9aa4;font-size:.88rem;line-height:1.5}
+.crop-stage{max-height:60vh;background:#000;border-radius:8px;overflow:hidden}
+.crop-stage img{display:block;max-width:100%}
+.crop-actions{display:flex;justify-content:flex-end;gap:10px}
 
 /* Responsive */
 @media(max-width:720px){

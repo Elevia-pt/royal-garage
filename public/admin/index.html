@@ -12,6 +12,8 @@
 <link rel="stylesheet" href="/admin/admin.css">
 <script src="/admin/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 </head>
 <body>
 
@@ -159,8 +161,8 @@
         <textarea name="desc" rows="4" placeholder="Texto livre sobre o estado, manutenção, histórico, etc."></textarea>
       </label>
       <div class="photos-block">
-        <h4>Fotos <span class="photo-count" id="photoCount">0/15</span></h4>
-        <p class="hint">A primeira foto é a capa. Arrasta ficheiros ou clica para escolher.</p>
+        <h4>Fotos <span class="photo-count" id="photoCount">0/45</span></h4>
+        <p class="hint">Ao escolher cada foto podes ajustar o enquadramento (como aparece no site). A primeira é a capa — usa "★ Capa" para trocar.</p>
         <div id="dropzone" class="dropzone">
           <span>📷</span><span>Arrasta fotos aqui ou clica para escolher</span>
           <input type="file" id="photoInput" multiple accept="image/*" hidden>
@@ -171,6 +173,17 @@
     </details>
   </form>
 </section>
+
+<div id="cropModal" class="crop-modal hidden">
+  <div class="crop-dialog">
+    <p class="crop-hint">Ajusta o enquadramento — é assim que a foto vai aparecer no site (16:10). Arrasta/zoom na imagem.</p>
+    <div class="crop-stage"><img id="cropImg" alt=""></div>
+    <div class="crop-actions">
+      <button type="button" class="btn btn-secondary" id="cropCancel">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="cropConfirm">Usar foto →</button>
+    </div>
+  </div>
+</div>
 
 <script src="/admin/admin.js" defer></script>
 </body>
