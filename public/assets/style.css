@@ -34,7 +34,7 @@ header.scrolled{background:rgba(10,10,12,.96);border-bottom:1px solid var(--line
 .brand{display:flex;align-items:center;gap:11px}
 .brand img{width:64px;border-radius:10px;box-shadow:0 0 16px rgba(240,192,64,.45),0 0 0 1px rgba(240,192,64,.4);transition:.35s}
 header.scrolled .brand img{width:52px}
-.brand b{font-family:'Cinzel',serif;font-weight:700;font-size:1.5rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand b{font-family:'Cinzel',serif;font-weight:900;font-size:1.5rem;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .menu{display:flex;align-items:center;gap:30px}
 .menu a{font-size:.86rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt);transition:.2s}
 .menu a:hover{color:var(--gold)}
@@ -231,11 +231,13 @@ header.scrolled .brand img{width:52px}
 
 /* Why */
 .why{background:var(--bg2)}
-.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:46px}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px;margin-top:46px}
 .feat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:30px 24px;transition:.3s}
 .feat:hover{transform:translateY(-6px);border-color:var(--gold)}
 .feat .ic{width:54px;height:54px;border-radius:12px;background:rgba(240,192,64,.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
 .feat svg{width:26px;height:26px;color:var(--gold)}
+.feat .ic.is-green{background:rgba(34,197,94,.14)}
+.feat .ic.is-green svg{color:#22c55e;width:30px;height:30px}
 .feat h4{font-size:1.1rem;font-weight:700;margin-bottom:8px}
 .feat p{color:var(--muted);font-size:.9rem}
 
@@ -334,7 +336,6 @@ footer ul a:hover{color:var(--gold)}
   .menu{position:fixed;inset:0 0 0 auto;width:75%;max-width:320px;background:#0f0f12;border-left:1px solid var(--line);flex-direction:column;justify-content:center;gap:28px;transform:translateX(100%);transition:.4s;z-index:60}
   .menu.open{transform:none}
   .burger{display:flex;z-index:61}
-  .why-grid{grid-template-columns:1fr 1fr}
   .loc-grid{grid-template-columns:1fr}
   .foot-grid{grid-template-columns:1fr}
   .mobile-bar{display:flex}
@@ -363,7 +364,6 @@ footer ul a:hover{color:var(--gold)}
   header.scrolled .brand img{width:44px}
   .brand b{font-size:1.12rem}
   .stats-grid{grid-template-columns:1fr;gap:24px}
-  .why-grid{grid-template-columns:1fr}
   .hero{background-position:center}
   .destaque-body{padding:24px}
   .destaque-specs{grid-template-columns:1fr 1fr}
