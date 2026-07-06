@@ -254,7 +254,7 @@ header.scrolled .brand img{width:52px}
 
 /* CTA */
 .cta-band{text-align:center;background:linear-gradient(180deg,var(--bg),var(--bg2))}
-.cta-band h2{font-size:clamp(2.2rem,5vw,3.6rem)}
+.cta-band h2{font-size:clamp(2.2rem,5vw,3.6rem);line-height:1.15}
 .cta-band .phone{font-family:var(--disp);font-size:clamp(2.4rem,6vw,3.8rem);display:inline-block;margin:6px 0 18px}
 .cta-band .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
