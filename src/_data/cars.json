@@ -59,10 +59,10 @@
         "modelo": "A 180 d 7G-DCT Progressive",
         "ano": 2018,
         "mes": "Setembro",
-        "km": 145000,
+        "km": 96000,
         "comb": "Diesel",
         "caixa": "Manual",
-        "preco": 20500,
+        "preco": 20990,
         "cc": 1461,
         "cv": 116,
         "tracao": "Dianteira",
@@ -91,7 +91,7 @@
         "status": "available",
         "featured": true,
         "createdAt": "2026-05-01",
-        "updatedAt": "2026-05-30"
+        "updatedAt": "2026-08-06"
     },
     {
         "id": "opel-insignia-cdti-2011",
