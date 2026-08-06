@@ -359,6 +359,20 @@
           dragMode: 'move',
         });
       };
+      // Se a imagem falhar a abrir (ex.: HEIC do iPhone — formato que browsers
+      // não-Safari não renderizam), fecha o modal e avisa em vez de travar em
+      // silêncio (era a causa n.º 1 de "não consigo fazer upload" sem erro).
+      img.onerror = () => {
+        cleanup();
+        const ext = (file.name.split('.').pop() || '').toUpperCase();
+        alert(
+          `Não foi possível abrir "${file.name}".\n\n` +
+          (ext === 'HEIC' || ext === 'HEIF'
+            ? 'Este formato do iPhone (HEIC) não é lido pelo browser.\n\nSolução rápida no iPhone:\nDefinições → Câmara → Formatos → escolhe "Mais Compatível".\nA partir daí, as fotos ficam guardadas em JPEG e podem ser enviadas.\n\nPara as fotos já feitas: partilha-as pelo Whatsapp/Mail com "opção original" ou converte-as para JPEG.'
+            : `Formato "${ext}" pode não ser suportado. Tenta em JPEG ou PNG.`)
+        );
+        resolve(null);
+      };
       img.src = url;
       modal.classList.remove('hidden');
       $('#cropConfirm').onclick = () => {
