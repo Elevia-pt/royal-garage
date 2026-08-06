@@ -72,6 +72,10 @@
   // Sem animacao CSS 'transform' de proposito: essa dava ecra preto no Safari
   // iOS ao sair/voltar ao viewport. scrollLeft nao tem esse bug e permite swipe.
   $$('.car-marquee').forEach((section) => {
+    // Vendidos: sem auto-scroll — só uma copia, scroll manual (cliente pediu
+    // para nao repetir carros). Os outros marquees (stock a venda) mantem
+    // o auto-avanco em loop seamless.
+    if (section.classList.contains('is-sold')) return;
     const vp = $('.car-marquee-viewport', section);
     const track = $('.car-marquee-track', section);
     if (!vp || !track) return;

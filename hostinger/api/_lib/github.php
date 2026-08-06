@@ -42,7 +42,7 @@ function read_cars(): array {
   return ['cars' => is_array($cars) ? $cars : [], 'sha' => $data['sha']];
 }
 
-function write_cars(array $cars, string $sha, string $message): array {
+function write_cars(array $cars, string $sha, string $message, ?string $authorEmail = null): array {
   $cfg = gh_config();
   $url = $cfg['api'] . '/contents/' . RG_FILE_PATH;
   $body = [
@@ -51,6 +51,14 @@ function write_cars(array $cars, string $sha, string $message): array {
     'sha'     => $sha,
     'branch'  => $cfg['branch'],
   ];
+  // Se o email do user Supabase for passado, atribuir a autoria a essa conta
+  // (default: dono do GITHUB_TOKEN). Assim o git log mostra quem no admin
+  // fez cada mudança em vez de todos parecerem o mesmo bot.
+  if ($authorEmail) {
+    $name = strstr($authorEmail, '@', true) ?: $authorEmail; // "auto.royalgarage"
+    $body['author']    = ['name' => $name, 'email' => $authorEmail];
+    $body['committer'] = ['name' => $name, 'email' => $authorEmail];
+  }
   $headers = array_merge($cfg['headers'], ['Content-Type: application/json']);
   $res = http_put($url, json_encode($body), $headers);
   if ($res['status'] !== 200 && $res['status'] !== 201) {

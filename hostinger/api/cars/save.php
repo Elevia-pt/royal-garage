@@ -71,7 +71,7 @@ try {
     $label = "adicionar {$payload['marca']} {$payload['modelo']}";
   }
 
-  write_cars($updated, $sha, "admin: $label");
+  write_cars($updated, $sha, "admin: $label", $auth['user']['email'] ?? null);
   send_json(['ok' => true]);
 } catch (Exception $e) {
   send_error($e->getMessage(), 500);

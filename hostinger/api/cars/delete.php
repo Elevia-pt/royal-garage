@@ -26,7 +26,7 @@ try {
   if (!$target) send_error('Carro não encontrado.', 404);
 
   $updated = array_values(array_filter($cars, fn($c) => ($c['id'] ?? null) !== $payload['id']));
-  write_cars($updated, $sha, "admin: remover {$target['marca']} {$target['modelo']}");
+  write_cars($updated, $sha, "admin: remover {$target['marca']} {$target['modelo']}", $auth['user']['email'] ?? null);
   send_json(['ok' => true]);
 } catch (Exception $e) {
   send_error($e->getMessage(), 500);

@@ -29,7 +29,7 @@ try {
     fn($c) => array_merge($c, ['featured' => ($c['id'] ?? null) === $payload['id']]),
     $cars
   );
-  write_cars($updated, $sha, "admin: definir destaque — {$target['marca']} {$target['modelo']}");
+  write_cars($updated, $sha, "admin: definir destaque — {$target['marca']} {$target['modelo']}", $auth['user']['email'] ?? null);
   send_json(['ok' => true]);
 } catch (Exception $e) {
   send_error($e->getMessage(), 500);

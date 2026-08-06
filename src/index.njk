@@ -204,20 +204,6 @@ description: "Compre o seu próximo carro usado em Famões, Odivelas. Viaturas c
             </div>
           </article>
         {% endfor %}
-        {# Clone para loop seamless #}
-        {% for c in soldCars %}
-          <article class="mq-card is-sold" aria-hidden="true">
-            <div class="mq-media">
-              <img src="{{ c.photos[0] | carImg(900) }}" alt="" loading="lazy">
-              <span class="price-sold">Vendido</span>
-            </div>
-            <div class="mq-body">
-              <div class="mq-brand">{{ c.marca }}</div>
-              <div class="mq-model">{{ c.modelo }}</div>
-              <div class="mq-meta">{{ c.comb }}</div>
-            </div>
-          </article>
-        {% endfor %}
       </div>
     </div>
   </section>
