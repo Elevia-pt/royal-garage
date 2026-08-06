@@ -17,6 +17,29 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
+      # Free-tier do Supabase auto-pausa projetos com 7+ dias sem requests.
+      # Um ping trivial a cada 20 min mantém o projeto sempre ativo.
+      # Falha aqui NÃO deve bloquear o resto do watchdog.
+      - name: Keep-alive Supabase (evita auto-pause)
+        continue-on-error: true
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
+            echo "SUPABASE_URL não configurado — skip"
+            exit 0
+          fi
+          URL="${{ secrets.SUPABASE_URL }}"
+          URL="${URL%/}"
+          CODE=$(curl -so /dev/null -w "%{http_code}" --max-time 10 "$URL/auth/v1/health" || echo "000")
+          # Qualquer resposta HTTP conta como "vivo" — o objetivo é evitar auto-pause,
+          # não validar o endpoint. Só 000 (DNS/timeout) e 5xx sinalizam problema real.
+          if [ "$CODE" = "000" ]; then
+            echo "❌ Supabase inacessível (DNS/timeout) — PROJETO PAUSADO!"
+          elif [ "$CODE" -ge 500 ] 2>/dev/null; then
+            echo "⚠️ Supabase HTTP $CODE — problema no servidor deles"
+          else
+            echo "✓ Supabase ativo (HTTP $CODE)"
+          fi
+
       - name: Obter SHA mais recente do main
         id: sha
         run: |
