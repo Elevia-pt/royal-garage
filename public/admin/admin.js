@@ -431,23 +431,57 @@
     return EXT_HEIC.includes(fileExt(file)) || /image\/hei[cf]/.test(file.type || '');
   }
 
-  // Processa os ficheiros escolhidos: crop (modal, um a um) -> upload, com resumo no fim.
+  // Converte HEIC/HEIF (iPhone) para JPEG no proprio browser, via heic2any.
+  // Devolve um File JPEG, ou null se a conversao nao for possivel (nesse caso
+  // o chamador faz upload do HEIC original e deixa o Cloudinary converter).
+  async function heicToJpeg(file) {
+    if (typeof heic2any === 'undefined') return null;
+    try {
+      const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+      const blob = Array.isArray(out) ? out[0] : out;   // Live Photos vem em array
+      if (!blob || !blob.size) return null;
+      const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+      return new File([blob], name, { type: 'image/jpeg' });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Processa os ficheiros escolhidos: HEIC->JPEG -> crop (modal, um a um) ->
+  // upload, com resumo no fim.
   async function handleFiles(files) {
     const status = $('#uploadStatus');
     let ok = 0;
     const failed = [];
     const skipped = [];   // ficheiros que nem chegaram a ser tentados
-    const heic = [];      // HEIC: o browser nao consegue descodificar
 
     if (!files.length) return;
 
-    for (const file of files) {
-      if (isHeic(file)) { heic.push(file.name); continue; }
-      if (!isImageFile(file)) { skipped.push(file.name); continue; }
+    for (const [i, original] of Array.from(files).entries()) {
+      if (!isImageFile(original)) { skipped.push(original.name); continue; }
       if (state.photos.length >= 45) { alert('Máximo de 45 fotos por carro.'); break; }
+
+      let file = original;
+      let heicDirect = false;   // HEIC que vai cru para o Cloudinary
+
+      // iPhone: converter HEIC -> JPEG antes de qualquer outra coisa.
+      if (isHeic(original)) {
+        status.textContent = `A converter foto do iPhone (${i + 1}/${files.length})…`;
+        const jpeg = await heicToJpeg(original);
+        if (jpeg) {
+          file = jpeg;
+        } else {
+          // Sem heic2any (CDN bloqueado?) — o Cloudinary tambem converte HEIC
+          // no servidor. Perde-se o recorte manual, mas a foto entra na mesma.
+          heicDirect = true;
+        }
+      }
+
       let blob, name;
       const ext = fileExt(file);
-      if (ext === 'gif' || ext === 'svg') {
+      if (heicDirect) {
+        blob = original; name = original.name;
+      } else if (ext === 'gif' || ext === 'svg') {
         blob = file; name = file.name; // crop nao se aplica a estes formatos
       } else {
         const cropped = await cropImage(file);
@@ -459,18 +493,6 @@
       if (success) ok++; else failed.push(name);
     }
 
-    if (heic.length) {
-      alert(
-        `${heic.length} foto(s) em formato HEIC do iPhone não podem ser lidas pelo navegador:\n` +
-        heic.slice(0, 5).join('\n') + (heic.length > 5 ? '\n…' : '') +
-        '\n\nCOMO RESOLVER (no iPhone):\n' +
-        'Definições → Câmara → Formatos → escolher "Mais Compatível".\n' +
-        'As fotos novas passam a ser JPEG e funcionam.\n\n' +
-        'Para estas fotos: envia-as para ti por WhatsApp ou Email — ' +
-        'ficam convertidas em JPEG e já podes carregá-las aqui.'
-      );
-    }
-
     // NUNCA falhar em silêncio: se nada foi enviado, dizer sempre porquê.
     if (failed.length) {
       status.textContent = `⚠️ ${ok} enviada(s), ${failed.length} falhou/falharam: ${failed.join(', ')}`;
@@ -479,7 +501,7 @@
     } else if (ok) {
       status.textContent = `✓ ${ok} foto(s) enviada(s).`;
       setTimeout(() => { if (status.textContent.startsWith('✓')) status.textContent = ''; }, 2500);
-    } else if (!heic.length) {
+    } else {
       status.textContent = '⚠️ Nenhuma foto foi enviada. Tenta outra vez ou usa fotos em JPEG.';
     }
   }
