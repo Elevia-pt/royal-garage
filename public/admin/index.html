@@ -9,14 +9,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/admin/admin.css?v=heic-convert-9">
+<link rel="stylesheet" href="/admin/admin.css?v=mobile-sdk-fallback-12">
 <script src="/admin/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Rede movel falha muito com um so CDN. Se o jsdelivr nao respondeu,
+  // tenta o unpkg ainda durante o parsing (document.write e' seguro aqui).
+  if (!window.supabase) {
+    document.write('<scr' + 'ipt src="https://unpkg.com/@supabase/supabase-js@2"><\/scr' + 'ipt>');
+  }
+</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
-<!-- Converte HEIC/HEIF do iPhone para JPEG no browser (o cliente fotografa no
-     iPhone e envia do PC; esses ficheiros nao sao lidos por Chrome/Edge). -->
-<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
+<!-- heic2any (~1.5MB) NAO e' carregado aqui de proposito: so e' pedido
+     quando o utilizador escolhe mesmo uma foto HEIC (ver admin.js).
+     Em rede movel isso poupa 1.5MB no arranque da pagina. -->
 </head>
 <body>
 
@@ -188,6 +195,6 @@
   </div>
 </div>
 
-<script src="/admin/admin.js?v=heic-convert-9" defer></script>
+<script src="/admin/admin.js?v=mobile-sdk-fallback-12" defer></script>
 </body>
 </html>

@@ -10,8 +10,17 @@
     return;
   }
   if (!window.supabase || !window.supabase.createClient) {
+    // Acontece sobretudo em rede movel (CDN lento/bloqueado). Dar um botao
+    // de recarregar em vez de um beco sem saida.
     document.body.innerHTML =
-      '<div style="padding:40px;color:#fca5a5;font-family:system-ui">⚠️ Falha a carregar o SDK do Supabase. Verifica a tua ligação à net.</div>';
+      '<div style="padding:40px 24px;color:#fca5a5;font-family:system-ui;text-align:center;max-width:460px;margin:0 auto">' +
+      '<p style="font-size:1.05rem;line-height:1.5">⚠️ Não foi possível carregar o painel.</p>' +
+      '<p style="color:#9b9aa4;font-size:.92rem;line-height:1.5;margin-top:10px">' +
+      'Normalmente é falha temporária de rede. Tenta outra vez — se estiveres com dados móveis, ' +
+      'liga-te a uma rede Wi-Fi.</p>' +
+      '<button onclick="location.reload()" style="margin-top:22px;background:linear-gradient(100deg,#ffe27a,#f0c040);' +
+      'color:#000;border:0;padding:14px 28px;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;' +
+      'font-family:inherit">Tentar novamente</button></div>';
     return;
   }
 
@@ -431,11 +440,29 @@
     return EXT_HEIC.includes(fileExt(file)) || /image\/hei[cf]/.test(file.type || '');
   }
 
+  // Carrega o heic2any (~1.5MB) so' quando aparece mesmo uma foto HEIC.
+  // Manter isto fora do arranque da pagina e' o que permite o admin abrir
+  // depressa em rede movel.
+  let heicLoader = null;
+  function ensureHeic2Any() {
+    if (typeof heic2any !== 'undefined') return Promise.resolve(true);
+    if (heicLoader) return heicLoader;                 // ja' esta' a caminho
+    heicLoader = new Promise((resolve) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+      s.onload = () => resolve(typeof heic2any !== 'undefined');
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    });
+    return heicLoader;
+  }
+
   // Converte HEIC/HEIF (iPhone) para JPEG no proprio browser, via heic2any.
   // Devolve um File JPEG, ou null se a conversao nao for possivel (nesse caso
   // o chamador faz upload do HEIC original e deixa o Cloudinary converter).
   async function heicToJpeg(file) {
-    if (typeof heic2any === 'undefined') return null;
+    const ready = await ensureHeic2Any();
+    if (!ready) return null;
     try {
       const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
       const blob = Array.isArray(out) ? out[0] : out;   // Live Photos vem em array
