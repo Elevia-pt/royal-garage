@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/admin/admin.css?v=heic-fix">
+<link rel="stylesheet" href="/admin/admin.css?v=upload-diag-3">
 <script src="/admin/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
@@ -165,7 +165,7 @@
         <p class="hint">Ao escolher cada foto podes ajustar o enquadramento (como aparece no site). A primeira é a capa — usa "★ Capa" para trocar.</p>
         <div id="dropzone" class="dropzone">
           <span>📷</span><span>Arrasta fotos aqui ou clica para escolher</span>
-          <input type="file" id="photoInput" multiple accept="image/*" hidden>
+          <input type="file" id="photoInput" multiple accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp" hidden>
         </div>
         <div id="photosGrid" class="photos-grid"></div>
         <div id="uploadStatus" class="upload-status"></div>
@@ -185,6 +185,6 @@
   </div>
 </div>
 
-<script src="/admin/admin.js?v=heic-fix" defer></script>
+<script src="/admin/admin.js?v=upload-diag-3" defer></script>
 </body>
 </html>

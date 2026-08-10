@@ -411,31 +411,76 @@
     }
   }
 
+  const EXT_IMG = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg', 'avif'];
+  const EXT_HEIC = ['heic', 'heif'];
+
+  function fileExt(file) {
+    return (file.name.split('.').pop() || '').toLowerCase();
+  }
+
+  // O Windows nem sempre preenche file.type (HEIC sem as extensoes HEIF
+  // instaladas vem com type === ""). Por isso decidimos por MIME **ou**
+  // por extensao — nunca so por MIME.
+  function isImageFile(file) {
+    if (file.type && file.type.startsWith('image/')) return true;
+    const ext = fileExt(file);
+    return EXT_IMG.includes(ext) || EXT_HEIC.includes(ext);
+  }
+
+  function isHeic(file) {
+    return EXT_HEIC.includes(fileExt(file)) || /image\/hei[cf]/.test(file.type || '');
+  }
+
   // Processa os ficheiros escolhidos: crop (modal, um a um) -> upload, com resumo no fim.
   async function handleFiles(files) {
     const status = $('#uploadStatus');
     let ok = 0;
     const failed = [];
+    const skipped = [];   // ficheiros que nem chegaram a ser tentados
+    const heic = [];      // HEIC: o browser nao consegue descodificar
+
+    if (!files.length) return;
+
     for (const file of files) {
-      if (!file.type.startsWith('image/')) continue;
+      if (isHeic(file)) { heic.push(file.name); continue; }
+      if (!isImageFile(file)) { skipped.push(file.name); continue; }
       if (state.photos.length >= 45) { alert('Máximo de 45 fotos por carro.'); break; }
       let blob, name;
-      if (file.type === 'image/gif' || file.type === 'image/svg+xml') {
+      const ext = fileExt(file);
+      if (ext === 'gif' || ext === 'svg') {
         blob = file; name = file.name; // crop nao se aplica a estes formatos
       } else {
         const cropped = await cropImage(file);
-        if (!cropped) continue; // utilizador cancelou esta foto
+        if (!cropped) continue; // utilizador cancelou (ou a imagem nao abriu)
         blob = cropped;
         name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
       }
       const success = await uploadBlob(blob, name);
       if (success) ok++; else failed.push(name);
     }
+
+    if (heic.length) {
+      alert(
+        `${heic.length} foto(s) em formato HEIC do iPhone não podem ser lidas pelo navegador:\n` +
+        heic.slice(0, 5).join('\n') + (heic.length > 5 ? '\n…' : '') +
+        '\n\nCOMO RESOLVER (no iPhone):\n' +
+        'Definições → Câmara → Formatos → escolher "Mais Compatível".\n' +
+        'As fotos novas passam a ser JPEG e funcionam.\n\n' +
+        'Para estas fotos: envia-as para ti por WhatsApp ou Email — ' +
+        'ficam convertidas em JPEG e já podes carregá-las aqui.'
+      );
+    }
+
+    // NUNCA falhar em silêncio: se nada foi enviado, dizer sempre porquê.
     if (failed.length) {
       status.textContent = `⚠️ ${ok} enviada(s), ${failed.length} falhou/falharam: ${failed.join(', ')}`;
+    } else if (skipped.length) {
+      status.textContent = `⚠️ ${skipped.length} ficheiro(s) ignorado(s) (não são imagens): ${skipped.join(', ')}`;
     } else if (ok) {
       status.textContent = `✓ ${ok} foto(s) enviada(s).`;
       setTimeout(() => { if (status.textContent.startsWith('✓')) status.textContent = ''; }, 2500);
+    } else if (!heic.length) {
+      status.textContent = '⚠️ Nenhuma foto foi enviada. Tenta outra vez ou usa fotos em JPEG.';
     }
   }
 
