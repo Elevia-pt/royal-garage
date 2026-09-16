@@ -17,27 +17,32 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      # Free-tier do Supabase auto-pausa projetos com 7+ dias sem requests.
-      # Um ping trivial a cada 20 min mantém o projeto sempre ativo.
-      # Falha aqui NÃO deve bloquear o resto do watchdog.
+      # Free-tier do Supabase auto-pausa projetos inativos (~7 dias).
+      # ATENCAO: /auth/v1/health NAO conta como atividade — e' um liveness
+      # probe. E este projeto so' usa Auth (nao tem tabelas), por isso a BD
+      # nunca e' tocada por ninguem. Temos de bater no PostgREST com a anon
+      # key: isso faz introspeccao do schema = query real a` base de dados.
       - name: Keep-alive Supabase (evita auto-pause)
         continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
-            echo "SUPABASE_URL não configurado — skip"
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::warning::SUPABASE_URL/ANON_KEY em falta — keep-alive nao corre"
             exit 0
           fi
-          URL="${{ secrets.SUPABASE_URL }}"
-          URL="${URL%/}"
-          CODE=$(curl -so /dev/null -w "%{http_code}" --max-time 10 "$URL/auth/v1/health" || echo "000")
-          # Qualquer resposta HTTP conta como "vivo" — o objetivo é evitar auto-pause,
-          # não validar o endpoint. Só 000 (DNS/timeout) e 5xx sinalizam problema real.
+          URL="${SUPABASE_URL%/}"
+          CODE=$(curl -so /dev/null -w "%{http_code}" --max-time 15 \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$URL/rest/v1/" || echo "000")
           if [ "$CODE" = "000" ]; then
-            echo "❌ Supabase inacessível (DNS/timeout) — PROJETO PAUSADO!"
+            echo "::error::Supabase NAO RESOLVE (DNS) — projeto pausado ou apagado. O admin esta em baixo."
           elif [ "$CODE" -ge 500 ] 2>/dev/null; then
-            echo "⚠️ Supabase HTTP $CODE — problema no servidor deles"
+            echo "::warning::Supabase HTTP $CODE — problema do lado deles"
           else
-            echo "✓ Supabase ativo (HTTP $CODE)"
+            echo "Supabase ativo e BD tocada (HTTP $CODE)"
           fi
 
       - name: Obter SHA mais recente do main
