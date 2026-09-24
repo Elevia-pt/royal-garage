@@ -104,7 +104,7 @@
         "id": "bmw-serie-3-6ab55b0651409",
         "slug": "bmw-serie-3",
         "status": "available",
-        "featured": false,
+        "featured": true,
         "createdAt": "2026-09-24"
     },
     {
@@ -406,7 +406,7 @@
             "car-6.jpg"
         ],
         "status": "available",
-        "featured": true,
+        "featured": false,
         "createdAt": "2026-05-06",
         "updatedAt": "2026-06-01"
     }
