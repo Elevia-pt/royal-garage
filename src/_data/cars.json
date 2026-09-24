@@ -380,7 +380,7 @@
         "km": 155000,
         "comb": "Diesel",
         "caixa": "Manual 6V",
-        "preco": 14500,
+        "preco": 13990,
         "cc": 1995,
         "cv": 163,
         "tracao": "Traseira",
@@ -408,6 +408,6 @@
         "status": "available",
         "featured": false,
         "createdAt": "2026-05-06",
-        "updatedAt": "2026-06-01"
+        "updatedAt": "2026-09-24"
     }
 ]
