@@ -35,7 +35,7 @@
         "km": 61000,
         "comb": "Elétrico",
         "caixa": "Automática",
-        "preco": 10500,
+        "preco": 10990,
         "cv": 82,
         "tracao": "Traseira",
         "portas": 5,
@@ -90,7 +90,8 @@
         "slug": "smart-forfour",
         "status": "available",
         "featured": false,
-        "createdAt": "2026-10-19"
+        "createdAt": "2026-10-19",
+        "updatedAt": "2026-11-05"
     },
     {
         "extras": [
