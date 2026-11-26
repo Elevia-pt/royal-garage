@@ -26,7 +26,7 @@
   }
 
   const $ = (s) => document.querySelector(s);
-  const VIEWS = ['loading', 'login', 'forgot', 'dashboard', 'form'];
+  const VIEWS = ['loading', 'login', 'dashboard', 'form'];
   const NUMERIC_FIELDS = ['ano', 'km', 'preco', 'cc', 'cv', 'portas', 'lugares', 'donos'];
 
   const state = {
@@ -537,17 +537,6 @@
       } finally {
         btn.disabled = false; btn.textContent = 'Entrar';
       }
-    });
-
-    $('#btnForgot')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      hideError('loginError');
-      setView('forgot');
-    });
-
-    $('#btnBackToLogin')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      setView('login');
     });
 
     $('#btnLogout')?.addEventListener('click', () => {
