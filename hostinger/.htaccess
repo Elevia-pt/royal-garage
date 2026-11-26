@@ -14,6 +14,7 @@ RewriteRule ^api/cars/delete/?$        api/cars/delete.php    [L]
 RewriteRule ^api/cars/featured/?$      api/cars/featured.php  [L]
 RewriteRule ^api/cars/status/?$        api/cars/status.php    [L]
 RewriteRule ^api/upload/sign/?$        api/upload/sign.php    [L]
+RewriteRule ^api/auth/login/?$         api/auth/login.php     [L]
 
 # Admin SPA — qualquer subrota dentro de /admin/ devolve o index.html
 RewriteCond %{REQUEST_FILENAME} !-f

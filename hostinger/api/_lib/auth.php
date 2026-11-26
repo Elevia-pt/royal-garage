@@ -1,41 +1,110 @@
 <?php
-// Valida o token Supabase chamando o endpoint /auth/v1/user.
-// Não precisa do JWT secret — a Supabase confirma se o token é válido.
+// Autenticacao do painel admin, feita inteiramente neste servidor.
+//
+// Substituiu o Supabase Auth em 2026-11. Razao: o free-tier do Supabase
+// auto-pausa projetos inativos e deixou o admin em baixo duas vezes, e o
+// SDK vinha de um CDN que falhava em rede movel. Agora nao ha dependencias
+// externas: as credenciais vivem no .env do Hostinger e o token e' assinado
+// aqui.
+//
+// Credenciais (.env):
+//   ADMIN_USERS=email1:pbkdf2_sha256$310000$<salt_hex>$<hash_hex>,email2:...
+//   AUTH_SECRET=<string aleatoria longa, usada para assinar os tokens>
 
 require_once __DIR__ . '/env.php';
-require_once __DIR__ . '/http.php';
 
-function verify_supabase_token(string $token) {
-  $base = rtrim(env_get('SUPABASE_URL'), '/');
-  $anon = env_get('SUPABASE_ANON_KEY');
-  if (!$base) throw new Exception('SUPABASE_URL não está configurado em .env');
-  if (!$anon) throw new Exception('SUPABASE_ANON_KEY não está configurado em .env');
+const AUTH_TOKEN_TTL  = 60 * 60 * 24 * 30;  // 30 dias
+const AUTH_PBKDF2_ALGO = 'sha256';
 
-  $res = http_get($base . '/auth/v1/user', [
-    'Authorization: Bearer ' . $token,
-    'apikey: ' . $anon,
-  ]);
-  if ($res['status'] !== 200) return null;
-  $data = json_decode($res['body'], true);
-  return $data ?: null;
+// ---------------------------------------------------------------- base64url
+
+function b64url_encode(string $raw): string {
+  return rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
 }
 
-// Defesa-em-profundidade: mesmo que o signup do Supabase fique aberto por
-// engano, só emails na lista ALLOWED_EMAILS (.env) entram no admin.
-// Se ALLOWED_EMAILS não estiver definida, o comportamento é o anterior
-// (qualquer conta Supabase válida entra) — backward-compatible.
-function is_email_allowed(string $email): bool {
-  $raw = env_get('ALLOWED_EMAILS', '');
-  if (trim($raw) === '') return true; // sem allowlist = sem restrição
-  $needle = strtolower(trim($email));
-  foreach (explode(',', $raw) as $e) {
-    if ($needle !== '' && strtolower(trim($e)) === $needle) return true;
+function b64url_decode(string $s) {
+  $pad = strlen($s) % 4;
+  if ($pad) $s .= str_repeat('=', 4 - $pad);
+  return base64_decode(strtr($s, '-_', '+/'), true);
+}
+
+// ------------------------------------------------------------- credenciais
+
+// Devolve [email => hash_guardado] a partir do ADMIN_USERS.
+function admin_users(): array {
+  $raw = (string) env_get('ADMIN_USERS', '');
+  $out = [];
+  foreach (explode(',', $raw) as $entry) {
+    $entry = trim($entry);
+    if ($entry === '') continue;
+    $sep = strpos($entry, ':');
+    if ($sep === false) continue;
+    $email = strtolower(trim(substr($entry, 0, $sep)));
+    $hash  = trim(substr($entry, $sep + 1));
+    if ($email !== '' && $hash !== '') $out[$email] = $hash;
   }
-  return false;
+  return $out;
 }
+
+// Formato: pbkdf2_sha256$<iteracoes>$<salt_hex>$<hash_hex>
+function verify_password(string $password, string $stored): bool {
+  $parts = explode('$', $stored);
+  if (count($parts) !== 4 || $parts[0] !== 'pbkdf2_sha256') return false;
+  $iter = (int) $parts[1];
+  $salt = @hex2bin($parts[2]);
+  $want = $parts[3];
+  if ($iter < 1000 || $salt === false || $want === '') return false;
+  $got = hash_pbkdf2(AUTH_PBKDF2_ALGO, $password, $salt, $iter, 0, false);
+  return hash_equals($want, $got);   // comparacao resistente a timing
+}
+
+// --------------------------------------------------------------- tokens
+
+function auth_secret(): string {
+  $s = (string) env_get('AUTH_SECRET', '');
+  if (strlen($s) < 24) {
+    throw new Exception('AUTH_SECRET em falta ou demasiado curto no .env');
+  }
+  return $s;
+}
+
+function issue_token(string $email): string {
+  $now = time();
+  $payload = json_encode([
+    'sub' => strtolower($email),
+    'iat' => $now,
+    'exp' => $now + AUTH_TOKEN_TTL,
+  ], JSON_UNESCAPED_UNICODE);
+  $body = b64url_encode($payload);
+  $sig  = b64url_encode(hash_hmac('sha256', $body, auth_secret(), true));
+  return $body . '.' . $sig;
+}
+
+// Devolve o payload se o token for valido, ou null.
+function verify_token(string $token) {
+  $dot = strrpos($token, '.');
+  if ($dot === false) return null;
+  $body = substr($token, 0, $dot);
+  $sig  = substr($token, $dot + 1);
+
+  $expected = b64url_encode(hash_hmac('sha256', $body, auth_secret(), true));
+  if (!hash_equals($expected, $sig)) return null;
+
+  $json = b64url_decode($body);
+  if ($json === false) return null;
+  $data = json_decode($json, true);
+  if (!is_array($data) || empty($data['sub'])) return null;
+  if (!isset($data['exp']) || time() >= (int) $data['exp']) return null;
+
+  // A conta tem de continuar a existir no .env (revogar = tirar de la').
+  if (!array_key_exists(strtolower($data['sub']), admin_users())) return null;
+
+  return $data;
+}
+
+// ---------------------------------------------------------- check_auth
 
 function check_auth(): array {
-  // Apanhar Authorization header (case-insensitive)
   $headers = function_exists('getallheaders') ? getallheaders() : [];
   $auth = '';
   foreach ($headers as $k => $v) {
@@ -44,22 +113,23 @@ function check_auth(): array {
   if ($auth === '' && isset($_SERVER['HTTP_AUTHORIZATION'])) {
     $auth = $_SERVER['HTTP_AUTHORIZATION'];
   }
+  if ($auth === '' && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+    $auth = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];  // alguns setups Apache
+  }
 
   if (!str_starts_with($auth, 'Bearer ')) {
     return ['ok' => false, 'error' => 'Sessão inválida. Faz login outra vez.'];
   }
-  $token = trim(substr($auth, 7));
+
   try {
-    $user = verify_supabase_token($token);
-    if (!$user || empty($user['id'])) {
-      return ['ok' => false, 'error' => 'Sessão expirada ou inválida. Faz login outra vez.'];
-    }
-    $email = (string)($user['email'] ?? '');
-    if (!is_email_allowed($email)) {
-      return ['ok' => false, 'error' => 'Conta não autorizada a aceder ao painel. Contacta o administrador.'];
-    }
-    return ['ok' => true, 'user' => $user];
+    $data = verify_token(trim(substr($auth, 7)));
   } catch (Exception $e) {
     return ['ok' => false, 'error' => $e->getMessage()];
   }
+  if (!$data) {
+    return ['ok' => false, 'error' => 'Sessão expirada ou inválida. Faz login outra vez.'];
+  }
+
+  // Mesma forma que o codigo ja' esperava do Supabase: $auth['user']['email']
+  return ['ok' => true, 'user' => ['id' => $data['sub'], 'email' => $data['sub']]];
 }

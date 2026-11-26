@@ -1,40 +1,32 @@
 (function () {
   'use strict';
 
-  // ===== Bootstrap config =====
-  const cfg = window.RG_AUTH || {};
-  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    document.body.innerHTML =
-      '<div style="padding:40px;color:#fca5a5;font-family:system-ui">' +
-      '⚠️ Supabase não configurado. Verifica que as env vars <code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code> estão metidas no Netlify, e faz um redeploy.</div>';
-    return;
-  }
-  if (!window.supabase || !window.supabase.createClient) {
-    // Acontece sobretudo em rede movel (CDN lento/bloqueado). Dar um botao
-    // de recarregar em vez de um beco sem saida.
-    document.body.innerHTML =
-      '<div style="padding:40px 24px;color:#fca5a5;font-family:system-ui;text-align:center;max-width:460px;margin:0 auto">' +
-      '<p style="font-size:1.05rem;line-height:1.5">⚠️ Não foi possível carregar o painel.</p>' +
-      '<p style="color:#9b9aa4;font-size:.92rem;line-height:1.5;margin-top:10px">' +
-      'Normalmente é falha temporária de rede. Tenta outra vez — se estiveres com dados móveis, ' +
-      'liga-te a uma rede Wi-Fi.</p>' +
-      '<button onclick="location.reload()" style="margin-top:22px;background:linear-gradient(100deg,#ffe27a,#f0c040);' +
-      'color:#000;border:0;padding:14px 28px;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;' +
-      'font-family:inherit">Tentar novamente</button></div>';
-    return;
+  // ===== Sessao =====
+  // Desde 2026-11 o login e' feito pelo proprio servidor (PHP no Hostinger),
+  // em /api/auth/login. Antes era Supabase Auth: o free-tier auto-pausava o
+  // projeto e punha o admin em baixo, e o SDK vinha de um CDN que falhava em
+  // rede movel. Agora nao ha dependencias externas no login.
+  const SESSION_KEY = 'rg_admin_session';
+
+  function loadSession() {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      const s = JSON.parse(raw);
+      return (s && s.token) ? s : null;
+    } catch (e) { return null; }
   }
 
-  const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'implicit'
-    }
-  });
+  function saveSession(sess) {
+    try { localStorage.setItem(SESSION_KEY, JSON.stringify(sess)); } catch (e) {}
+  }
+
+  function clearSession() {
+    try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+  }
 
   const $ = (s) => document.querySelector(s);
-  const VIEWS = ['loading', 'login', 'forgot', 'recovery', 'dashboard', 'form'];
+  const VIEWS = ['loading', 'login', 'forgot', 'dashboard', 'form'];
   const NUMERIC_FIELDS = ['ano', 'km', 'preco', 'cc', 'cv', 'portas', 'lugares', 'donos'];
 
   const state = {
@@ -44,8 +36,7 @@
     photos: [],
     brands: [],
     equipment: [],
-    formBuilt: false,
-    inRecovery: false
+    formBuilt: false
   };
 
   function setView(name) {
@@ -61,7 +52,7 @@
     if (!el) { alert(msg); return; }
     el.textContent = msg;
     el.classList.remove('hidden');
-    if (elId !== 'loginError' && elId !== 'recoveryError') {
+    if (elId !== 'loginError') {
       setTimeout(() => el.classList.add('hidden'), 9000);
     }
   }
@@ -90,19 +81,14 @@
     return '/assets/cars/' + p;
   }
 
-  function isRecoveryUrl() {
-    const hash = window.location.hash || '';
-    return /(^|[#&?])type=recovery(&|$)/.test(hash);
-  }
-
-  async function getAccessToken() {
-    const { data } = await sb.auth.getSession();
-    return data && data.session ? data.session.access_token : null;
+  function getAccessToken() {
+    const sess = loadSession();
+    return sess ? sess.token : null;
   }
 
   async function api(path, opts) {
     opts = opts || {};
-    const token = await getAccessToken();
+    const token = getAccessToken();
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
     const res = await fetch(`/api/${path}`, {
@@ -114,7 +100,8 @@
     let json;
     try { json = text ? JSON.parse(text) : {}; } catch { json = { raw: text }; }
     if (res.status === 401) {
-      await sb.auth.signOut();
+      clearSession();
+      state.cars = [];
       setView('login');
       throw new Error('Sessão expirada. Volta a entrar.');
     }
@@ -123,21 +110,13 @@
   }
 
   async function boot() {
-    if (state.inRecovery || isRecoveryUrl()) {
-      state.inRecovery = true;
-      setView('recovery');
-      return;
-    }
-    const { data } = await sb.auth.getSession();
-    const session = data && data.session;
+    const session = loadSession();
     if (!session) {
       setView('login');
       return;
     }
     const emailEl = $('#userEmail');
-    if (emailEl && session.user && session.user.email) {
-      emailEl.textContent = session.user.email;
-    }
+    if (emailEl && session.email) emailEl.textContent = session.email;
     setView('loading');
     try {
       await Promise.all([loadStaticData(), loadCars()]);
@@ -533,18 +512,6 @@
     }
   }
 
-  // ===== Auth state listener =====
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'PASSWORD_RECOVERY') {
-      state.inRecovery = true;
-      setView('recovery');
-    } else if (event === 'SIGNED_OUT') {
-      state.cars = [];
-      state.inRecovery = false;
-      setView('login');
-    }
-  });
-
   // ===== Event wiring =====
   document.addEventListener('DOMContentLoaded', () => {
     $('#loginForm')?.addEventListener('submit', async (e) => {
@@ -555,8 +522,14 @@
       const btn = $('#btnLogin');
       btn.disabled = true; btn.textContent = 'A entrar…';
       try {
-        const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Nao foi possivel entrar.');
+        saveSession({ token: data.token, email: data.email });
         $('#loginPassword').value = '';
         await boot();
       } catch (err) {
@@ -569,70 +542,18 @@
     $('#btnForgot')?.addEventListener('click', (e) => {
       e.preventDefault();
       hideError('loginError');
-      const email = $('#loginEmail').value.trim();
-      if (email) $('#forgotEmail').value = email;
-      hideError('forgotError');
-      $('#forgotNotice')?.classList.add('hidden');
       setView('forgot');
-      setTimeout(() => $('#forgotEmail')?.focus(), 0);
     });
 
     $('#btnBackToLogin')?.addEventListener('click', (e) => {
       e.preventDefault();
-      hideError('forgotError');
-      $('#forgotNotice')?.classList.add('hidden');
       setView('login');
     });
 
-    $('#forgotForm')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideError('forgotError');
-      $('#forgotNotice')?.classList.add('hidden');
-      const email = $('#forgotEmail').value.trim();
-      if (!email) return;
-      const btn = $('#btnSendReset');
-      btn.disabled = true; btn.textContent = 'A enviar…';
-      try {
-        const { error } = await sb.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + '/admin/'
-        });
-        if (error) throw error;
-        const box = $('#forgotNotice');
-        box.textContent = '✓ Email enviado para ' + email + '. Vê a caixa de entrada (e Spam).';
-        box.classList.remove('hidden');
-      } catch (err) {
-        showError('forgotError', err.message || 'Erro a enviar email');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Enviar link de reset';
-      }
-    });
-
-    $('#recoveryForm')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideError('recoveryError');
-      const pw = $('#recoveryPassword').value;
-      const confirmPw = $('#recoveryConfirm').value;
-      if (pw !== confirmPw) { showError('recoveryError', 'As passwords não coincidem.'); return; }
-      if (pw.length < 6) { showError('recoveryError', 'Mínimo 6 caracteres.'); return; }
-      const btn = e.target.querySelector('button[type="submit"]');
-      btn.disabled = true; btn.textContent = 'A guardar…';
-      try {
-        const { error } = await sb.auth.updateUser({ password: pw });
-        if (error) throw error;
-        state.inRecovery = false;
-        alert('Password atualizada com sucesso! 🎉');
-        // Limpar o hash do URL
-        history.replaceState(null, '', '/admin/');
-        await boot();
-      } catch (err) {
-        showError('recoveryError', err.message || 'Erro a atualizar');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Atualizar password';
-      }
-    });
-
-    $('#btnLogout')?.addEventListener('click', async () => {
-      await sb.auth.signOut();
+    $('#btnLogout')?.addEventListener('click', () => {
+      clearSession();
+      state.cars = [];
+      setView('login');
     });
 
     $('#btnAddCar')?.addEventListener('click', () => openForm(null));
