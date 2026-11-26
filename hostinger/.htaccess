@@ -15,6 +15,7 @@ RewriteRule ^api/cars/featured/?$      api/cars/featured.php  [L]
 RewriteRule ^api/cars/status/?$        api/cars/status.php    [L]
 RewriteRule ^api/upload/sign/?$        api/upload/sign.php    [L]
 RewriteRule ^api/auth/login/?$         api/auth/login.php     [L]
+RewriteRule ^api/auth/password/?$      api/auth/password.php  [L]
 
 # Admin SPA — qualquer subrota dentro de /admin/ devolve o index.html
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -25,6 +26,11 @@ RewriteRule ^admin(/.*)?$ /admin/index.html [L]
 <Files ".env">
   Require all denied
 </Files>
+
+# Ficheiro das contas do admin (hashes das passwords): nunca servir pela web
+<FilesMatch "^admin-users\.json">
+  Require all denied
+</FilesMatch>
 
 # Bloquear acesso a _lib (libs PHP internas)
 RewriteRule ^api/_lib/ - [F,L]

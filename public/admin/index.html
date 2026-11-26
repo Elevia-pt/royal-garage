@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/admin/admin.css?v=auth-php-2">
+<link rel="stylesheet" href="/admin/admin.css?v=auth-php-3">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 <!-- heic2any (~1.5MB) NAO e' carregado aqui de proposito: so e' pedido
@@ -34,6 +34,19 @@
     <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
     <button type="submit" class="btn btn-primary btn-big" id="btnLogin">Entrar</button>
     <div id="loginError" class="err-box hidden"></div>
+  </form>
+</section>
+
+<section id="view-newpw" class="view hidden">
+  <form class="login-card" id="newpwForm" autocomplete="off">
+    <img src="/assets/logo.jpg" alt="Royal Garage" class="login-logo">
+    <h1>Define a tua password</h1>
+    <p>Esta password foi-te enviada por mensagem, por isso tens de a trocar
+       por uma so' tua antes de continuares. Minimo 8 caracteres.</p>
+    <input type="password" id="newpw1" placeholder="Nova password" required minlength="8" autocomplete="new-password">
+    <input type="password" id="newpw2" placeholder="Repete a nova password" required minlength="8" autocomplete="new-password">
+    <button type="submit" class="btn btn-primary btn-big" id="btnSaveNewPw">Guardar e entrar</button>
+    <div id="newpwError" class="err-box hidden"></div>
   </form>
 </section>
 
@@ -160,6 +173,6 @@
   </div>
 </div>
 
-<script src="/admin/admin.js?v=auth-php-2" defer></script>
+<script src="/admin/admin.js?v=auth-php-3" defer></script>
 </body>
 </html>

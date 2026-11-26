@@ -26,7 +26,7 @@
   }
 
   const $ = (s) => document.querySelector(s);
-  const VIEWS = ['loading', 'login', 'dashboard', 'form'];
+  const VIEWS = ['loading', 'login', 'newpw', 'dashboard', 'form'];
   const NUMERIC_FIELDS = ['ano', 'km', 'preco', 'cc', 'cv', 'portas', 'lugares', 'donos'];
 
   const state = {
@@ -52,7 +52,7 @@
     if (!el) { alert(msg); return; }
     el.textContent = msg;
     el.classList.remove('hidden');
-    if (elId !== 'loginError') {
+    if (elId !== 'loginError' && elId !== 'newpwError') {
       setTimeout(() => el.classList.add('hidden'), 9000);
     }
   }
@@ -113,6 +113,11 @@
     const session = loadSession();
     if (!session) {
       setView('login');
+      return;
+    }
+    if (session.mustChange) {
+      setView('newpw');
+      setTimeout(() => $('#newpw1')?.focus(), 0);
       return;
     }
     const emailEl = $('#userEmail');
@@ -529,13 +534,45 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || 'Nao foi possivel entrar.');
-        saveSession({ token: data.token, email: data.email });
+        saveSession({ token: data.token, email: data.email, mustChange: !!data.mustChange });
         $('#loginPassword').value = '';
+        if (data.mustChange) { setView('newpw'); setTimeout(() => $('#newpw1')?.focus(), 0); return; }
         await boot();
       } catch (err) {
         showError('loginError', err.message || 'Erro a entrar');
       } finally {
         btn.disabled = false; btn.textContent = 'Entrar';
+      }
+    });
+
+    $('#newpwForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError('newpwError');
+      const p1 = $('#newpw1').value;
+      const p2 = $('#newpw2').value;
+      if (p1 !== p2) { showError('newpwError', 'As duas passwords não são iguais.'); return; }
+      if (p1.length < 8) { showError('newpwError', 'A password tem de ter pelo menos 8 caracteres.'); return; }
+      const btn = $('#btnSaveNewPw');
+      btn.disabled = true; btn.textContent = 'A guardar…';
+      try {
+        const res = await fetch('/api/auth/password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + (getAccessToken() || '')
+          },
+          body: JSON.stringify({ password: p1 })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Não foi possível guardar a password.');
+        // Token novo, emitido ja' depois da troca.
+        saveSession({ token: data.token, email: data.email, mustChange: false });
+        $('#newpw1').value = ''; $('#newpw2').value = '';
+        await boot();
+      } catch (err) {
+        showError('newpwError', err.message || 'Erro a guardar a password');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Guardar e entrar';
       }
     });
 

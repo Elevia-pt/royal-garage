@@ -12,6 +12,7 @@
 //   AUTH_SECRET=<string aleatoria longa, usada para assinar os tokens>
 
 require_once __DIR__ . '/env.php';
+require_once __DIR__ . '/users.php';
 
 const AUTH_TOKEN_TTL  = 60 * 60 * 24 * 30;  // 30 dias
 const AUTH_PBKDF2_ALGO = 'sha256';
@@ -30,20 +31,20 @@ function b64url_decode(string $s) {
 
 // ------------------------------------------------------------- credenciais
 
-// Devolve [email => hash_guardado] a partir do ADMIN_USERS.
+// Devolve [email => hash_guardado]. A fonte e' o admin-users.json (ver
+// users.php), semeado a partir do ADMIN_USERS do .env na primeira vez.
 function admin_users(): array {
-  $raw = (string) env_get('ADMIN_USERS', '');
   $out = [];
-  foreach (explode(',', $raw) as $entry) {
-    $entry = trim($entry);
-    if ($entry === '') continue;
-    $sep = strpos($entry, ':');
-    if ($sep === false) continue;
-    $email = strtolower(trim(substr($entry, 0, $sep)));
-    $hash  = trim(substr($entry, $sep + 1));
-    if ($email !== '' && $hash !== '') $out[$email] = $hash;
+  foreach (users_load() as $email => $u) {
+    if (!empty($u['hash'])) $out[$email] = $u['hash'];
   }
   return $out;
+}
+
+// A conta ainda esta' com a password inicial e tem de a trocar?
+function user_must_change(string $email): bool {
+  $u = users_load()[strtolower(trim($email))] ?? null;
+  return (bool) ($u['must_change'] ?? false);
 }
 
 // Formato: pbkdf2_sha256$<iteracoes>$<salt_hex>$<hash_hex>
@@ -104,7 +105,9 @@ function verify_token(string $token) {
 
 // ---------------------------------------------------------- check_auth
 
-function check_auth(): array {
+// Valida so' o token. Usado pelo endpoint de troca de password, que tem de
+// funcionar precisamente enquanto a troca esta' pendente.
+function check_auth_token(): array {
   $headers = function_exists('getallheaders') ? getallheaders() : [];
   $auth = '';
   foreach ($headers as $k => $v) {
@@ -130,6 +133,19 @@ function check_auth(): array {
     return ['ok' => false, 'error' => 'Sessão expirada ou inválida. Faz login outra vez.'];
   }
 
+  $email = strtolower($data['sub']);
   // Mesma forma que o codigo ja' esperava do Supabase: $auth['user']['email']
-  return ['ok' => true, 'user' => ['id' => $data['sub'], 'email' => $data['sub']]];
+  return ['ok' => true, 'user' => ['id' => $email, 'email' => $email]];
+}
+
+// Usado por toda a API. Alem do token, exige que a password inicial ja'
+// tenha sido trocada: enquanto estiver pendente, a conta so' pode mudar a
+// password e mais nada.
+function check_auth(): array {
+  $res = check_auth_token();
+  if (!$res['ok']) return $res;
+  if (user_must_change($res['user']['email'])) {
+    return ['ok' => false, 'error' => 'Tens de definir uma password nova antes de continuares.'];
+  }
+  return $res;
 }

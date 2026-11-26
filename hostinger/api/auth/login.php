@@ -86,7 +86,13 @@ try {
   }
 
   throttle_reset();
-  send_json(['token' => issue_token($email), 'email' => $email]);
+  send_json([
+    'token'       => issue_token($email),
+    'email'       => $email,
+    // Password inicial por trocar: o painel manda-o definir uma nova antes
+    // de o deixar entrar.
+    'mustChange'  => user_must_change($email),
+  ]);
 } catch (Exception $e) {
   send_error($e->getMessage(), 500);
 }
